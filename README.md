@@ -31,3 +31,68 @@ Créer une petite appli Full Stack qui :
 - Backend tourne en local avec Postgres/PostGIS
 - Frontend montre une carte avec Mapbox + interaction
 - API exposée en JSON (preuve de maîtrise full stack)
+
+________________________________________________________
+
+# Docker Steps
+
+## Étape 1 – Lancer la stack (Docker Compose)
+
+```powershell
+> cd ../SkiMap_Project
+> docker compose up -d --build
+```
+
+## Étape 2 – Vérifier les conteneurs
+
+```powershell
+> docker compose ps
+```
+
+Attendus:
+
+- skimap-postgis (5432:5432)
+- skimap-django (8000:8000)
+
+## Étape 3 – Accéder au backend Django
+
+- Ouvrir: http://localhost:8000/
+- Si "Bad Request (400)", ajouter `ALLOWED_HOSTS = ["*"]` dans `backend/django/skimap_backend/settings.py`, puis:
+
+```powershell
+> docker compose restart web
+```
+
+### Endpoint de santé
+
+- Tester: http://localhost:8000/health/
+- Réponse attendue:
+
+```json
+{ "status": "ok" }
+```
+
+## Étape 4 – Base de données PostGIS (déjà initialisée)
+
+- Le script `backend/db/init.sql` est exécuté automatiquement au premier démarrage.
+- Connexion manuelle si besoin:
+
+```powershell
+> docker exec -it skimap-postgis psql -U postgres -d skimap
+```
+
+- Vérifications rapides dans `psql`:
+
+```sql
+\dt
+SELECT COUNT(*) FROM stations;
+SELECT COUNT(*) FROM pistes;
+```
+
+## Étape 5 – Arrêt / redémarrage
+
+```powershell
+> docker compose stop
+> docker compose start
+> docker compose down
+```

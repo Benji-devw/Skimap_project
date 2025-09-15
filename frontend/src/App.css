@@ -1,0 +1,136 @@
+/* Variables de thème (simple) */
+:root {
+  --map-accent: #ff3b3b;
+  --bg: #0f172a;
+  --fg: #e2e8f0;
+}
+
+/* Mise en page plein écran */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--fg);
+  background: linear-gradient(180deg, #0b1220, var(--bg));
+}
+
+.map-container {
+  height: 100vh;
+  width: 100%;
+}
+
+/* Popups Mapbox un peu plus lisibles */
+.mapboxgl-popup-content {
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+/* Contrôles Mapbox légèrement adoucis */
+.mapboxgl-ctrl button {
+  border-radius: 6px;
+}
+
+/* UI overlay */
+.ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* laisse la carte capter les interactions par défaut */
+}
+
+.topbar {
+  pointer-events: auto;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.status {
+  opacity: 0.9;
+}
+
+.btn {
+  pointer-events: auto;
+  background: var(--map-accent);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.sidebar {
+  pointer-events: auto;
+  position: absolute;
+  right: 12px;
+  top: 72px;
+  width: 300px;
+  max-height: calc(100vh - 84px);
+  overflow: auto;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+}
+
+.sidebar-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sidebar-empty {
+  opacity: 0.8;
+}
+
+.piste-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.piste-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+}
+
+.piste-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
