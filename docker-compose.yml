@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: skimap-postgis
+    environment:
+      POSTGRES_DB: skimap
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  web:
+    build: ./backend/django
+    container_name: skimap-django
+    command: sh -c "until pg_isready -h $$DB_HOST -p $$DB_PORT -U $$DB_USER; do echo '⏳ attente DB...'; sleep 2; done; python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_DEBUG: "1"
+      DB_NAME: skimap
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: db
+      DB_PORT: "5432"
+    volumes:
+      - ./backend/django:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy

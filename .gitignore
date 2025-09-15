@@ -1,0 +1,13 @@
+# Python / Django
+**/venv/
+**/__pycache__/
+**/*.pyc
+**/db.sqlite3
+
+# Node / frontend
+**/node_modules/
+**/dist/
+
+# Docker
+**/backend/django/*.pyc
+**/backend/django/__pycache__/
