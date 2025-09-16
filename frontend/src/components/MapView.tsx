@@ -172,7 +172,7 @@ const MapView = forwardRef<MapViewHandle, Props>(({
     }
   }, [pistes.length]);
 
-  console.log(stations);
+  // console.log(stations);
 
   return <div ref={containerRef} className="map-container" />;
 });
