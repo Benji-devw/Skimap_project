@@ -16,6 +16,9 @@ class Piste(models.Model):
         db_column='station_id', related_name='pistes'
     )
     nom = models.CharField(max_length=255)
+    type = models.CharField(max_length=50, db_column='type', null=True, blank=True)
+    etat = models.CharField(max_length=50, db_column='etat', null=True, blank=True)
+    longueur = models.IntegerField(db_column='longueur', null=True, blank=True)
     geometry = models.LineStringField(srid=4326, db_column='geom')
 
     class Meta:

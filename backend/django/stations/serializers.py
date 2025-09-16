@@ -12,7 +12,7 @@ class PisteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Piste
-        fields = ("id", "nom", "geometry")
+        fields = ("id", "nom", "type", "etat", "longueur", "geometry")
 
 class StationSerializer(serializers.ModelSerializer):
     pistes = PisteSerializer(many=True, read_only=True)

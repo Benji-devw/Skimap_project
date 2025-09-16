@@ -16,9 +16,29 @@ CREATE TABLE pistes (
 
 CREATE INDEX idx_pistes_geom ON pistes USING GIST (geom);
 
--- seed minimal
-INSERT INTO stations (nom, geom) VALUES
-('Station Démo', ST_GeomFromText('POINT(6.869 45.923)', 4326));
+-- Colonnes additionnelles pour enrichir les pistes
+ALTER TABLE pistes ADD COLUMN IF NOT EXISTS type TEXT;
+ALTER TABLE pistes ADD COLUMN IF NOT EXISTS etat TEXT;
+ALTER TABLE pistes ADD COLUMN IF NOT EXISTS longueur INTEGER;
 
-INSERT INTO pistes (station_id, nom, geom) VALUES
-(1, 'Piste Démo', ST_GeomFromText('LINESTRING(6.869 45.923, 6.872 45.925)', 4326));
+-- Seed: Alpe d'Huez (coordonnées WGS84 = LON, LAT)
+INSERT INTO stations (id, nom, geom) VALUES
+(1, 'Alpe d''Huez', ST_SetSRID(ST_GeomFromGeoJSON('{"type":"Point","coordinates":[6.068348,45.092624]}'), 4326));
+
+INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
+(1, 1, 'Sarenne',
+  ST_SetSRID(ST_GeomFromGeoJSON('{"type":"LineString","coordinates":[
+    [6.12595096706734,45.10721797232468],
+    [6.1281998817964680,45.096370771813135],
+    [6.126325786188863,45.087373969221936],
+    [6.133136682443073,45.083831058853924]
+  ]}'), 4326),
+  'noire', 'ouverte', 16000
+),
+(2, 1, 'Alpette',
+  ST_SetSRID(ST_GeomFromGeoJSON('{"type":"LineString","coordinates":[
+    [ 6.093693619277671,45.13981467189747],
+    [6.073180386279292, 45.129994502369904]
+  ]}'), 4326),
+  'rouge', 'ouverte', 1200
+);

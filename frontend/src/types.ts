@@ -6,6 +6,9 @@ export type LineStringGeometry = {
 export type Piste = {
   id: number;
   nom: string;
+  type: string;
+  etat: string;
+  longueur: number;
   geometry: LineStringGeometry | null;
 };
 

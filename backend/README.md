@@ -43,3 +43,11 @@
 | ---------------------- | ------------------------------------------------------ | ------------------------------------- |
 | /api/stations/proches/ | /api/stations/proches/?lat=45.923&lng=6.869&rayon=5000 | Stations proches d’un point donné     |
 | /api/pistes/{id}/      | /api/pistes/1/                                         | Infos + géométrie d’une piste précise |
+
+
+## Etape 4 - Update data
+```powershell
+> docker exec -it skimap-postgis psql -U postgres -d skimap
+> TRUNCATE pistes, stations RESTART IDENTITY CASCADE;
+> \i /docker-entrypoint-initdb.d/init.sql
+```

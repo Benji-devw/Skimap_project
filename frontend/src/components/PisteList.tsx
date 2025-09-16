@@ -12,8 +12,16 @@ export default function PisteList({ pistes }: Props) {
   return (
     <ul className="piste-list">
       {pistes.map((p) => (
-        <li key={p.id} className="piste-item">
-          <span className="piste-name">{p.nom}</span>
+        <li key={p.id} className={`piste-item`}>
+          
+          <ul className="piste-details"> <span className="piste-name">{p.nom}</span>
+            <li className="piste-type">{p.type}</li>
+            <li className="piste-etat">{p.etat}</li>
+            <li className="piste-longueur">{p.longueur}</li>
+            {/* add longitude and latitude */}
+            <li className="piste-longitude">{p.geometry?.coordinates[0]}</li>
+            <li className="piste-latitude">{p.geometry?.coordinates[1]}</li>
+          </ul>
         </li>
       ))}
     </ul>
