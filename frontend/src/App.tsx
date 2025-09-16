@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import './App.css';
 import type { Station, Piste } from "./types";
-import MapView from "./components/MapView";
+import MapView, { type MapViewHandle } from "./components/MapView";
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import CustomMapbar from "./components/CustomMapbar";
@@ -12,10 +12,12 @@ export default function App() {
   const [pistes, setPistes] = useState<Piste[]>([]);
   const [is3D, setIs3D] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
+  const mapViewRef = useRef<MapViewHandle | null>(null);
 
   return (
     <>
       <MapView
+        ref={mapViewRef}
         stations={stations}
         setStations={setStations}
         pistes={pistes}
@@ -35,6 +37,7 @@ export default function App() {
           setIs3D={setIs3D}
           isSatellite={isSatellite}
           setIsSatellite={setIsSatellite}
+          onResetBearing={() => mapViewRef.current?.resetBearing()}
         />
         <Sidebar
           pistes={pistes}

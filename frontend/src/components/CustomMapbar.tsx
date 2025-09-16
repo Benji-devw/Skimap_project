@@ -5,9 +5,16 @@ type Props = {
   setIs3D: (v: boolean) => void;
   isSatellite: boolean;
   setIsSatellite: (v: boolean) => void;
+  onResetBearing: () => void;
 };
 
-export default function CustomMapbar({ is3D, setIs3D, isSatellite, setIsSatellite }: Props) {
+export default function CustomMapbar({ 
+  is3D, 
+  setIs3D, 
+  isSatellite, 
+  setIsSatellite,
+  onResetBearing,
+}: Props) {
   return (
     <div className="custom-mapbar">
       <button className="styled-button" onClick={() => setIs3D(!is3D)}>
@@ -17,6 +24,11 @@ export default function CustomMapbar({ is3D, setIs3D, isSatellite, setIsSatellit
       <button className="styled-button" onClick={() => setIsSatellite(!isSatellite)}>
         {isSatellite ? "Satellite: ON" : "Satellite: OFF"}
         <span className="inner-button"><span className="icon">🛰️</span></span>
+      </button>
+
+      {/* Nouveau bouton pour réinitialiser le bearing */}
+      <button className="styled-button" onClick={onResetBearing}>
+        Nord ↑
       </button>
     </div>
   );

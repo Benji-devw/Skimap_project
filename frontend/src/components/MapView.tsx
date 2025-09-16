@@ -1,10 +1,9 @@
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { Station, Piste } from "../types";
 import { enable3D, disable3D } from "../utils/map3D";
-import { renderPistesLayer } from "../utils/pistesLayer";
-import { enableSatellite, disableSatellite } from "../utils/mapSatellite";
+// import { renderPistesLayer } from "../utils/pistesLayer";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
@@ -19,18 +18,31 @@ type Props = {
   isSatellite: boolean;
 };
 
-export default function MapView({
-  stations,
-  setStations,
-  pistes,
-  setPistes,
-  selectedStation,
-  setSelectedStation,
+export type MapViewHandle = {
+  resetBearing: () => void;
+};
+
+const MapView = forwardRef<MapViewHandle, Props>(({ 
+  // stations,
+  // setStations,
+  // pistes,
+  // setPistes,
+  // selectedStation,
+  // setSelectedStation,
   is3D,
   isSatellite,
-}: Props) {
+}, ref) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Expose reset bearing to parent
+  useImperativeHandle(ref, () => ({
+    resetBearing: () => {
+      const map = mapRef.current;
+      if (!map) return;
+      map.easeTo({ bearing: 0, duration: 800 });
+    },
+  }));
 
   // Init map
   useEffect(() => {
@@ -41,6 +53,7 @@ export default function MapView({
       style: "mapbox://styles/mapbox/streets-v12",
       center: [6.869, 45.923],
       zoom: 13,
+      bearing: 0,
     });
 
     mapRef.current = map;
@@ -126,4 +139,6 @@ export default function MapView({
   // }, [stations]);
 
   return <div ref={containerRef} className="map-container" />;
-}
+});
+
+export default MapView;
