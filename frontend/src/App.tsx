@@ -190,7 +190,7 @@ export default function App() {
     }
   }
 
-  console.log(pistes);
+  // console.log(pistes);
   // console.log(stations);
 
   return (
