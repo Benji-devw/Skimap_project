@@ -94,10 +94,13 @@ const MapView = forwardRef<MapViewHandle, Props>(({
     // Appliquer le nouveau style
     map.setStyle(style);
 
-    // Réappliquer la 3D après le chargement du nouveau style
+    // Réappliquer la 3D et les pistes après le chargement du nouveau style
     const onStyleLoad = () => {
       if (was3D) {
         enable3D(map);
+      }
+      if (pistes.length > 0) {
+        renderPistesLayer(map, pistes);
       }
       map.off("style.load", onStyleLoad);
     };
@@ -130,13 +133,22 @@ const MapView = forwardRef<MapViewHandle, Props>(({
         const pistesResp: Piste[] = await fetch(
           `${import.meta.env.VITE_API_URL}/api/pistes/?station_id=${station.id}`
         ).then((r) => r.json());
-
         const list = Array.isArray(pistesResp) ? pistesResp : [];
         setPistes(list);
         renderPistesLayer(map, list);
       });
     });
   }, [stations]);
+
+  // Remove pistes layer when cleared from Topbar/state
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (pistes.length === 0) {
+      if (map.getLayer("pistes-line")) map.removeLayer("pistes-line");
+      if (map.getSource("pistes")) map.removeSource("pistes");
+    }
+  }, [pistes.length]);
 
   return <div ref={containerRef} className="map-container" />;
 });

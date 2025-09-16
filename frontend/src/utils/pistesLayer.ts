@@ -1,4 +1,3 @@
-import mapboxgl from "mapbox-gl";
 import type { Piste, LineStringGeometry } from "../types";
 
 export function renderPistesLayer(map: mapboxgl.Map, pistes: Piste[]) {
@@ -7,7 +6,7 @@ export function renderPistesLayer(map: mapboxgl.Map, pistes: Piste[]) {
     .map((p) => ({
       type: "Feature" as const,
       geometry: p.geometry as LineStringGeometry,
-      properties: { nom: p.nom },
+      properties: { nom: p.nom + " " + p.type + " " + p.etat + " " + p.longueur },
     }));
 
   const data = { type: "FeatureCollection" as const, features };

@@ -30,7 +30,7 @@ export default function App() {
       <div className="ui">
         <Topbar
           selectedStation={selectedStation}
-          clearPistes={() => setPistes([])}
+          clearPistes={() => { setPistes([]); setSelectedStation(null); }}
         />
         <CustomMapbar
           is3D={is3D}
