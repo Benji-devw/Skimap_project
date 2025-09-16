@@ -33,10 +33,10 @@ export function enable3D(map: mapboxgl.Map) {
   }
 
   requestAnimationFrame(animate);
-  map.easeTo({ duration: 2000 });
+  map.easeTo({ pitch: 50, duration: 2000 });
 }
 
 export function disable3D(map: mapboxgl.Map) {
   map.setTerrain(null);
-  map.easeTo({ duration: 2000 });
+  map.easeTo({ pitch: 0, duration: 2000 });
 }

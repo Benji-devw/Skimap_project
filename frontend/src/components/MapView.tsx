@@ -135,7 +135,7 @@ const MapView = forwardRef<MapViewHandle, Props>(({
         setSelectedStation(station);
         // Zoom to station selected
         const target = station.geometry?.coordinates ?? [station.longitude, station.latitude];
-        map.easeTo({ center: target as [number, number], zoom: 14, duration: 800 });
+        map.easeTo({ center: target as [number, number], pitch: 50, zoom: 13, duration: 800 });
         // clear target piste to avoid re-zooming on previous selection
         setTargetPisteId(null);
 
@@ -159,8 +159,7 @@ const MapView = forwardRef<MapViewHandle, Props>(({
     if (!piste || !piste.geometry) return;
     const coords = piste.geometry.coordinates;
     if (!coords || coords.length === 0) return;
-    const bounds = coords.reduce((b, [lng, lat]) => b.extend([lng, lat]), new mapboxgl.LngLatBounds(coords[0] as any, coords[0] as any));
-    map.fitBounds(bounds, { padding: 40, maxZoom: 13, duration: 700 });
+    map.easeTo({ center: coords[0] as [number, number],pitch: 70, zoom: 14, duration: 700 });
   }, [targetPisteId, pistes]);
 
   // Remove pistes layer when cleared from Topbar/state
