@@ -11,6 +11,7 @@ export default function App() {
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [pistes, setPistes] = useState<Piste[]>([]);
   const [is3D, setIs3D] = useState(false);
+  const [isSatellite, setIsSatellite] = useState(false);
 
   return (
     <>
@@ -22,6 +23,7 @@ export default function App() {
         selectedStation={selectedStation}
         setSelectedStation={setSelectedStation}
         is3D={is3D}
+        // isSatellite={isSatellite}
       />
       <div className="ui">
         <Topbar
@@ -31,6 +33,8 @@ export default function App() {
         <CustomMapbar
           is3D={is3D}
           setIs3D={setIs3D}
+          isSatellite={isSatellite}
+          setIsSatellite={setIsSatellite}
         />
         <Sidebar
           pistes={pistes}
