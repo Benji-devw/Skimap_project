@@ -47,6 +47,8 @@
 
 ## Etape 4 - Update data
 ```powershell
+> docker compose down -v && docker compose up -d
+or
 > docker exec -it skimap-postgis psql -U postgres -d skimap
 > TRUNCATE pistes, stations RESTART IDENTITY CASCADE;
 > \i /docker-entrypoint-initdb.d/init.sql
