@@ -23,7 +23,7 @@ export default function App() {
         selectedStation={selectedStation}
         setSelectedStation={setSelectedStation}
         is3D={is3D}
-        // isSatellite={isSatellite}
+        isSatellite={isSatellite}
       />
       <div className="ui">
         <Topbar

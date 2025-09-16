@@ -4,6 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { Station, Piste } from "../types";
 import { enable3D, disable3D } from "../utils/map3D";
 import { renderPistesLayer } from "../utils/pistesLayer";
+import { enableSatellite, disableSatellite } from "../utils/mapSatellite";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
@@ -15,6 +16,7 @@ type Props = {
   selectedStation: Station | null;
   setSelectedStation: (s: Station | null) => void;
   is3D: boolean;
+  isSatellite: boolean;
 };
 
 export default function MapView({
@@ -25,6 +27,7 @@ export default function MapView({
   selectedStation,
   setSelectedStation,
   is3D,
+  isSatellite,
 }: Props) {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -49,40 +52,7 @@ export default function MapView({
     return () => map.remove();
   }, []);
 
-  // Fetch stations
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/stations`)
-      .then((r) => r.json())
-      .then(setStations)
-      .catch(console.error);
-  }, []);
-
-  // Add markers
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    stations.forEach((station) => {
-      const coord = station.geometry?.coordinates ?? [station.longitude, station.latitude];
-      const marker = new mapboxgl.Marker()
-        .setLngLat(coord)
-        .setPopup(new mapboxgl.Popup().setText(station.nom))
-        .addTo(map);
-
-      marker.getElement().addEventListener("click", async () => {
-        setSelectedStation(station);
-        const pistesResp: Piste[] = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/pistes/?station_id=${station.id}`
-        ).then((r) => r.json());
-
-        const list = Array.isArray(pistesResp) ? pistesResp : [];
-        setPistes(list);
-        renderPistesLayer(map, list);
-      });
-    });
-  }, [stations]);
-
-  // Apply 3D toggle
+  // Toggle 3D
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -95,6 +65,65 @@ export default function MapView({
       });
     }
   }, [is3D]);
+
+  // Toggle satellite style
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const style = isSatellite
+      ? "mapbox://styles/mapbox/satellite-streets-v12"
+      : "mapbox://styles/mapbox/streets-v12";
+
+    // Sauvegarder l'état 3D avant le changement de style
+    const was3D = is3D;
+
+    // Appliquer le nouveau style
+    map.setStyle(style);
+
+    // Réappliquer la 3D après le chargement du nouveau style
+    const onStyleLoad = () => {
+      if (was3D) {
+        enable3D(map);
+      }
+      map.off("style.load", onStyleLoad);
+    };
+
+    map.on("style.load", onStyleLoad);
+  }, [isSatellite]);
+
+  // Fetch stations
+  // useEffect(() => {
+  //   fetch(`${import.meta.env.VITE_API_URL}/api/stations`)
+  //     .then((r) => r.json())
+  //     .then(setStations)
+  //     .catch(console.error);
+  // }, []);
+
+  // Add markers
+  // useEffect(() => {
+  //   const map = mapRef.current;
+  //   if (!map) return;
+
+  //   stations.forEach((station) => {
+  //     const coord = station.geometry?.coordinates ?? [station.longitude, station.latitude];
+  //     const marker = new mapboxgl.Marker()
+  //       .setLngLat(coord)
+  //       .setPopup(new mapboxgl.Popup().setText(station.nom))
+  //       .addTo(map);
+
+  //     marker.getElement().addEventListener("click", async () => {
+  //       setSelectedStation(station);
+  //       const pistesResp: Piste[] = await fetch(
+  //         `${import.meta.env.VITE_API_URL}/api/pistes/?station_id=${station.id}`
+  //       ).then((r) => r.json());
+
+  //       const list = Array.isArray(pistesResp) ? pistesResp : [];
+  //       setPistes(list);
+  //       renderPistesLayer(map, list);
+  //     });
+  //   });
+  // }, [stations]);
 
   return <div ref={containerRef} className="map-container" />;
 }
