@@ -4,15 +4,16 @@ import PisteList from "./PisteList";
 type Props = {
   pistes: Piste[];
   selectedStation: Station | null;
+  setTargetPisteId: (id: number | null) => void;
 };
 
-export default function Sidebar({ pistes, selectedStation }: Props) {
+export default function Sidebar({ pistes, selectedStation, setTargetPisteId }: Props) {
   return (
     <aside className="sidebar">
       <div className="sidebar-title">
         Pistes {selectedStation ? `– ${selectedStation.nom}` : ""}
       </div>
-      <PisteList pistes={pistes} />
+      <PisteList pistes={pistes} setTargetPisteId={setTargetPisteId} />
     </aside>
   );
 }

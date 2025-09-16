@@ -16,6 +16,8 @@ type Props = {
   setSelectedStation: (s: Station | null) => void;
   is3D: boolean;
   isSatellite: boolean;
+  targetPisteId: number | null;
+  setTargetPisteId: (id: number | null) => void;
 };
 
 export type MapViewHandle = {
@@ -27,15 +29,16 @@ const MapView = forwardRef<MapViewHandle, Props>(({
   setStations,
   pistes,
   setPistes,
-  selectedStation,
   setSelectedStation,
   is3D,
   isSatellite,
+  targetPisteId,
+  setTargetPisteId,
 }, ref) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Expose reset bearing to parent
+  // Reset Bearing to north
   useImperativeHandle(ref, () => ({
     resetBearing: () => {
       const map = mapRef.current;
@@ -130,6 +133,12 @@ const MapView = forwardRef<MapViewHandle, Props>(({
 
       marker.getElement().addEventListener("click", async () => {
         setSelectedStation(station);
+        // Zoom to station selected
+        const target = station.geometry?.coordinates ?? [station.longitude, station.latitude];
+        map.easeTo({ center: target as [number, number], zoom: 14, duration: 800 });
+        // clear target piste to avoid re-zooming on previous selection
+        setTargetPisteId(null);
+
         const pistesResp: Piste[] = await fetch(
           `${import.meta.env.VITE_API_URL}/api/pistes/?station_id=${station.id}`
         ).then((r) => r.json());
@@ -140,6 +149,20 @@ const MapView = forwardRef<MapViewHandle, Props>(({
     });
   }, [stations]);
 
+  // Zoom to a piste when selected from sidebar
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (pistes.length === 0) return;
+    if (typeof targetPisteId !== 'number') return;
+    const piste = pistes.find(p => p.id === targetPisteId);
+    if (!piste || !piste.geometry) return;
+    const coords = piste.geometry.coordinates;
+    if (!coords || coords.length === 0) return;
+    const bounds = coords.reduce((b, [lng, lat]) => b.extend([lng, lat]), new mapboxgl.LngLatBounds(coords[0] as any, coords[0] as any));
+    map.fitBounds(bounds, { padding: 40, maxZoom: 13, duration: 700 });
+  }, [targetPisteId, pistes]);
+
   // Remove pistes layer when cleared from Topbar/state
   useEffect(() => {
     const map = mapRef.current;
@@ -149,6 +172,8 @@ const MapView = forwardRef<MapViewHandle, Props>(({
       if (map.getSource("pistes")) map.removeSource("pistes");
     }
   }, [pistes.length]);
+
+  console.log(stations);
 
   return <div ref={containerRef} className="map-container" />;
 });

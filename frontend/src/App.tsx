@@ -10,6 +10,7 @@ export default function App() {
   const [stations, setStations] = useState<Station[]>([]);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [pistes, setPistes] = useState<Piste[]>([]);
+  const [targetPisteId, setTargetPisteId] = useState<number | null>(null);
   const [is3D, setIs3D] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
   const mapViewRef = useRef<MapViewHandle | null>(null);
@@ -26,11 +27,13 @@ export default function App() {
         setSelectedStation={setSelectedStation}
         is3D={is3D}
         isSatellite={isSatellite}
+        targetPisteId={targetPisteId}
+        setTargetPisteId={setTargetPisteId}
       />
       <div className="ui">
         <Topbar
           selectedStation={selectedStation}
-          clearPistes={() => { setPistes([]); setSelectedStation(null); }}
+          clearPistes={() => { setPistes([]); setSelectedStation(null); setTargetPisteId(null); }}
         />
         <CustomMapbar
           is3D={is3D}
@@ -42,6 +45,7 @@ export default function App() {
         <Sidebar
           pistes={pistes}
           selectedStation={selectedStation}
+          setTargetPisteId={setTargetPisteId}
         />
       </div>
     </>

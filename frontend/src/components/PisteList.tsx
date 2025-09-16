@@ -3,9 +3,10 @@ import "../styles/StyledPisteList.css";
 
 type Props = {
   pistes: Piste[];
+  setTargetPisteId: (id: number | null) => void;
 };
 
-export default function PisteList({ pistes }: Props) {
+export default function PisteList({ pistes, setTargetPisteId }: Props) {
   if (pistes.length === 0) {
     return (
       <div className="sidebar-empty">
@@ -13,7 +14,7 @@ export default function PisteList({ pistes }: Props) {
       </div>
     );
   }
-
+  
   return (
     <ul className="piste-list">
       {pistes.map((p) => {
@@ -24,7 +25,7 @@ export default function PisteList({ pistes }: Props) {
               : `${p.longueur} m`
             : "";
         return (
-          <li key={p.id} className="piste-item">
+          <li key={p.id} className="piste-item" onClick={() => setTargetPisteId(p.id)}>
             <span className="piste-name">{p.nom}</span>
             <div className="piste-row">
               <div className="piste-tags">
