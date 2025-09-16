@@ -1,6 +1,7 @@
 /* Variables de thème (simple) */
 :root {
   --map-accent: #ff3b3b;
+  --map-light: #ffffff;
   --bg: #0f172a;
   --fg: #e2e8f0;
 }
@@ -90,7 +91,7 @@ body {
   pointer-events: auto;
   position: absolute;
   right: 12px;
-  top: 72px;
+  top: 82px;
   width: 300px;
   max-height: calc(100vh - 84px);
   overflow: auto;
@@ -125,7 +126,7 @@ body {
   justify-content: space-between;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .piste-name {
@@ -134,3 +135,28 @@ body {
   text-overflow: ellipsis;
 }
 
+.custom-mapbar {
+  pointer-events: auto;
+  position: absolute;
+  top: 84px;
+  left: 12px;
+  right: 12px;
+  padding: 8px 0;
+  /* background: rgba(15, 23, 42, 0.7); */
+}
+
+.mapboxgl-popup-content {
+  background: rgba(15, 23, 42, 0.7) !important;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+  border-radius: 8px !important;
+  padding: 18px 22px !important;
+  font-size: 14px;
+  color: var(--fg) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.mapboxgl-popup-close-button {
+  font-size: 24px !important;
+  color: var(--fg) !important;
+}
