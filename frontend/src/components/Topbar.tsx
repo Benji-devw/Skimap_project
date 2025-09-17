@@ -10,8 +10,12 @@ export default function Topbar({ selectedStation, clearPistes }: Props) {
     <div className="topbar">
       <div className="brand">SkiMap</div>
       <div className="spacer" />
-      <div className="status">{selectedStation ? selectedStation.nom : "Sélectionnez une station"}</div>
-      <button className="btn" onClick={clearPistes}>Effacer</button>
+      <div className="status">
+        📍 {selectedStation ? selectedStation.nom : "Sélectionnez une station"}
+      </div>
+      <button className="btn btn-small" onClick={clearPistes}>
+        Effacer
+      </button>
     </div>
   );
 }

@@ -1,3 +1,44 @@
+function animateTerrain(
+  map: mapboxgl.Map,
+  startExaggeration: number,
+  targetExaggeration: number,
+  startPitch: number,
+  targetPitch: number,
+  duration = 1000
+) {
+  let startTime: number | null = null;
+
+  function animate(time: number) {
+    if (!startTime) startTime = time;
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    const currentExaggeration =
+      startExaggeration + progress * (targetExaggeration - startExaggeration);
+
+    const currentPitch =
+      startPitch + progress * (targetPitch - startPitch);
+
+    if (targetExaggeration > 0) {
+      map.setTerrain({ source: "mapbox-dem", exaggeration: currentExaggeration });
+    } else {
+      map.setTerrain(
+        progress < 1
+          ? { source: "mapbox-dem", exaggeration: currentExaggeration }
+          : null
+      );
+    }
+
+    map.setPitch(currentPitch);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
 export function enable3D(map: mapboxgl.Map) {
   if (!map.getSource("mapbox-dem")) {
     map.addSource("mapbox-dem", {
@@ -8,33 +49,14 @@ export function enable3D(map: mapboxgl.Map) {
     } as any);
   }
 
-  // Animation de l'effet "montagne qui pousse"
-  let startTime: number | null = null;
-  const duration = 1000; // 1 secondes
-  const startExaggeration = 0;
-  const targetExaggeration = 1.5;
-
-  function animate(time: number) {
-    if (!startTime) startTime = time;
-    const elapsed = time - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-
-    // Calcul de l'exagération courante
-    const currentExaggeration =
-      startExaggeration + progress * (targetExaggeration - startExaggeration);
-
-    map.setTerrain({ source: "mapbox-dem", exaggeration: currentExaggeration });
-
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    }
-  }
-
-  requestAnimationFrame(animate);
-  map.easeTo({ pitch: 50, duration: 1000 });
+  const startPitch = map.getPitch();
+  animateTerrain(map, 0, 1.5, startPitch, 70, 1000);
 }
 
 export function disable3D(map: mapboxgl.Map) {
-  map.setTerrain(null);
-  map.easeTo({ pitch: 0, duration: 1000 });
+  const terrain = map.getTerrain();
+  const startExaggeration = (terrain ? terrain.exaggeration as number : 0);
+  const startPitch = map.getPitch();
+
+  animateTerrain(map, startExaggeration, 0, startPitch, 0, 1000);
 }

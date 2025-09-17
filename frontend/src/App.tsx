@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import './App.css';
-import type { Station, Piste } from "./types";
+import "./App.css";
+import type { Station, Piste, SnowMeasure } from "./types";
 import MapView, { type MapViewHandle } from "./components/MapView";
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -10,6 +10,7 @@ export default function App() {
   const [stations, setStations] = useState<Station[]>([]);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [pistes, setPistes] = useState<Piste[]>([]);
+  const [snowMeasures, setSnowMeasures] = useState<SnowMeasure[]>([]);
   const [targetPisteId, setTargetPisteId] = useState<number | null>(null);
   const [is3D, setIs3D] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
@@ -23,6 +24,8 @@ export default function App() {
         setStations={setStations}
         pistes={pistes}
         setPistes={setPistes}
+        snowMeasures={snowMeasures}
+        setSnowMeasures={setSnowMeasures}
         selectedStation={selectedStation}
         setSelectedStation={setSelectedStation}
         is3D={is3D}
@@ -33,7 +36,11 @@ export default function App() {
       <div className="ui">
         <Topbar
           selectedStation={selectedStation}
-          clearPistes={() => { setPistes([]); setSelectedStation(null); setTargetPisteId(null); }}
+          clearPistes={() => {
+            setPistes([]);
+            setSelectedStation(null);
+            setTargetPisteId(null);
+          }}
         />
         <CustomMapbar
           is3D={is3D}

@@ -7,11 +7,15 @@ type Props = {
   setTargetPisteId: (id: number | null) => void;
 };
 
-export default function Sidebar({ pistes, selectedStation, setTargetPisteId }: Props) {
+export default function Sidebar({
+  pistes,
+  selectedStation,
+  setTargetPisteId,
+}: Props) {
   return (
     <aside className="sidebar">
       <div className="sidebar-title">
-        Pistes {selectedStation ? `– ${selectedStation.nom}` : ""}
+        🏘️ {selectedStation ? `– ${selectedStation.nom}` : ""}
       </div>
       <PisteList pistes={pistes} setTargetPisteId={setTargetPisteId} />
     </aside>

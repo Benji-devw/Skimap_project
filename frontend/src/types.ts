@@ -24,3 +24,16 @@ export type Station = {
   latitude: number;
   geometry?: PointGeometry;
 };
+
+export type SnowMeasure = {
+  id: number;
+  date_heure: string;
+  temperature_c: number | null;
+  precipitations_mm: number | null;
+  hauteur_neige_totale_cm: number | null;
+  hauteur_neige_naturelle_cm: number | null;
+  hauteur_neige_artificielle_cm: number | null;
+  production_neige_artificielle_m3: number | null;
+  station_id: number;
+  station_nom: string;
+};

@@ -15,6 +15,7 @@ export default function PisteList({ pistes, setTargetPisteId }: Props) {
     );
   }
   
+  console.log(pistes);
   return (
     <ul className="piste-list">
       {pistes.map((p) => {
@@ -26,21 +27,21 @@ export default function PisteList({ pistes, setTargetPisteId }: Props) {
             : "";
         return (
           <li key={p.id} className="piste-item" onClick={() => setTargetPisteId(p.id)}>
-            <span className="piste-name">{p.nom}</span>
+            <span className="piste-name">⛷️ {p.nom}</span>
             <div className="piste-row">
               <div className="piste-tags">
                 {p.type && (
                   <span className={`tag tag-type tag-${p.type.toLowerCase()}`}>
-                    {p.type}
+                    Type : {p.type}
                   </span>
                 )}
                 {p.etat && (
                   <span className={`tag tag-etat tag-${p.etat.toLowerCase()}`}>
-                    {p.etat}
+                    Statut : {p.etat}
                   </span>
                 )}
                 {lengthLabel && (
-                  <span className="tag tag-length">{lengthLabel}</span>
+                 <span className="tag tag-length">Distance : {lengthLabel}</span>
                 )}
               </div>
             </div>
