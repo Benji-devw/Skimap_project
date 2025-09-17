@@ -24,28 +24,33 @@
 
 ### 🌍 API publique (préfixe /api/)
 
-| Ressource | Méthode | URL                 | Description                      |
-| --------- | ------- | ------------------- | -------------------------------- |
-| Stations  | GET     | /api/stations/      | Liste toutes les stations        |
-| Stations  | POST    | /api/stations/      | Créer une nouvelle station       |
-| Stations  | GET     | /api/stations/{id}/ | Récupérer une station spécifique |
-| Stations  | PUT     | /api/stations/{id}/ | Mettre à jour une station        |
-| Stations  | DELETE  | /api/stations/{id}/ | Supprimer une station            |
-| Pistes    | GET     | /api/pistes/        | Liste toutes les pistes          |
-| Pistes    | POST    | /api/pistes/        | Créer une nouvelle piste         |
-| Pistes    | GET     | /api/pistes/{id}/   | Récupérer une piste spécifique   |
-| Pistes    | PUT     | /api/pistes/{id}/   | Mettre à jour une piste          |
-| Pistes    | DELETE  | /api/pistes/{id}/   | Supprimer une piste              |
+| Ressource     | Méthode | URL                      | Description                      |
+| ------------- | ------- | ------------------------ | -------------------------------- |
+| Stations      | GET     | /api/stations/           | Liste toutes les stations        |
+| Stations      | POST    | /api/stations/           | Créer une nouvelle station       |
+| Stations      | GET     | /api/stations/{id}/      | Récupérer une station spécifique |
+| Stations      | PUT     | /api/stations/{id}/      | Mettre à jour une station        |
+| Stations      | DELETE  | /api/stations/{id}/      | Supprimer une station            |
+| Pistes        | GET     | /api/pistes/             | Liste toutes les pistes          |
+| Pistes        | POST    | /api/pistes/             | Créer une nouvelle piste         |
+| Pistes        | GET     | /api/pistes/{id}/        | Récupérer une piste spécifique   |
+| Pistes        | PUT     | /api/pistes/{id}/        | Mettre à jour une piste          |
+| Pistes        | DELETE  | /api/pistes/{id}/        | Supprimer une piste              |
+| Snow measures | GET     | /api/snow_measures/      | Liste toutes les mesures neige   |
+| Snow measures | POST    | /api/snow_measures/      | Créer une mesure neige           |
+| Snow measures | GET     | /api/snow_measures/{id}/ | Récupérer une mesure spécifique  |
+| Snow measures | PUT     | /api/snow_measures/{id}/ | Mettre à jour une mesure         |
+| Snow measures | DELETE  | /api/snow_measures/{id}/ | Supprimer une mesure             |
 
 ### ⚡ Endpoints personnalisés
 
-| Endpoint               | Exemple d’appel                                        | Description                           |
-| ---------------------- | ------------------------------------------------------ | ------------------------------------- |
-| /api/stations/proches/ | /api/stations/proches/?lat=45.923&lng=6.869&rayon=5000 | Stations proches d’un point donné     |
-| /api/pistes/{id}/      | /api/pistes/1/                                         | Infos + géométrie d’une piste précise |
-
+| Endpoint      | Exemple d’appel                     | Description|
+| --------------                    | ------------------------------------| --------------------------------|
+| /api/pistes/{id}/                 | /api/pistes/1/                                         | Infos + géométrie d’une piste précise  |
+| /api/stations/{id}/snow_measures  | /api/stations/1/snow_measures?limit=50                 | Mesures neige d’une station (GET/POST) |
 
 ## Etape 4 - Update data
+
 ```powershell
 > docker compose down -v && docker compose up -d
 or
@@ -63,16 +68,13 @@ or
 - [x] ViewSets REST: `StationViewSet`, `PisteViewSet` avec filtres (`station_id`, recherche spatiale via `lat`/`lng`/`rayon`)
 - [x] Routes DRF sous préfixe `/api/` via `DefaultRouter`
 - [x] Script `init.sql` (création tables, index GIST, colonnes additionnelles, seed de données)
-- [x] Ajoute un modèle pour les mesures météo/neige :
-température, précipitations, hauteur de neige, production de neige artificielle.
-- [x] Crée un endpoint d’API REST :
-GET /stations/{id}/snow → retourne les mesures/production pour cette station.
-POST /stations/{id}/snow → permet d’insérer de nouvelles mesures (même simulées).
+- [x] Modèle `SnowMeasure` + table `snow_measures` (température, précipitations, hauteurs, production)
+- [x] Endpoint `/api/stations/{id}/snow_measures` (GET/POST) + `SnowMeasureViewSet` CRUD
 - [ ] Endpoint dédié ou doc claire pour stations proches (ex: `/api/stations/proches/`) au lieu de seulement des query params
 - [ ] Pagination, tri, et filtres supplémentaires (nom, type, état) sur les listes
 - [ ] Endpoint GeoJSON FeatureCollection pour `pistes` et `stations` (export direct)
 - [ ] Tests unitaires (serializers, filtres spatiaux, endpoints) dans `stations/tests.py`
-- [ ] Admin Django: enregistrement `Station`/`Piste` avec aperçus géométriques
+- [ ] Admin Django: enregistrement `Station`/`Piste`/`SnowMeasure` avec aperçus géométriques
 - [ ] Documentation OpenAPI (Swagger) avec `drf-spectacular` ou `drf-yasg`
-- [ ] Commande de management pour importer des pistes/stations depuis GeoJSON/GPX
+- [ ] Commande de management pour importer des pistes/stations/snow depuis GeoJSON/GPX
 - [ ] Sécurisation basique (throttling, permissions si nécessaire) et limites de taille de réponse

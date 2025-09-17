@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Station, Piste
+from .models import Station, Piste, SnowMeasure
 import json
 
 class PisteSerializer(serializers.ModelSerializer):
@@ -34,3 +34,24 @@ class StationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Station
         fields = ("id", "nom", "longitude", "latitude", "geometry", "pistes")
+
+
+class SnowMeasureSerializer(serializers.ModelSerializer):
+    station_nom = serializers.CharField(source='station.nom', read_only=True)
+    station_id = serializers.IntegerField(source='station_id', read_only=True)
+    station = StationSerializer(read_only=True)
+    class Meta:
+        model = SnowMeasure
+        fields = (
+            "id",
+            "date_heure",
+            "temperature_c",
+            "precipitations_mm",
+            "hauteur_neige_totale_cm",
+            "hauteur_neige_naturelle_cm",
+            "hauteur_neige_artificielle_cm",
+            "production_neige_artificielle_m3",
+            "station_id",
+            "station_nom",
+            "station",  
+        )

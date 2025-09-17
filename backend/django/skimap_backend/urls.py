@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from stations.views import StationViewSet, PisteViewSet
+from stations.views import StationViewSet, PisteViewSet, SnowMeasureViewSet
 
 def health(_request):
     return JsonResponse({"status": "ok"})
@@ -26,6 +26,7 @@ def health(_request):
 router = DefaultRouter()
 router.register(r'stations', StationViewSet, basename='station')
 router.register(r'pistes', PisteViewSet, basename='piste')
+router.register(r'snow_measures', SnowMeasureViewSet, basename='snow_measure')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
