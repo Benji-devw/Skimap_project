@@ -28,11 +28,12 @@ CREATE TABLE IF NOT EXISTS snow_measures (
   date_heure TIMESTAMP NOT NULL,
   temperature_c NUMERIC(5,2),
   precipitations_mm NUMERIC(6,2),
-  hauteur_neige_totale_cm NUMERIC(6,2),       -- neige totale au sol
-  hauteur_neige_naturelle_cm NUMERIC(6,2),   -- part naturelle (mesurée ou estimée)
-  hauteur_neige_artificielle_cm NUMERIC(6,2),-- part artificielle (mesurée ou estimée)
-  production_neige_artificielle_m3 NUMERIC(10,2) -- volume produit (suivi technique)
+  hauteur_neige_totale_cm NUMERIC(6,2),
+  hauteur_neige_naturelle_cm NUMERIC(6,2),
+  hauteur_neige_artificielle_cm NUMERIC(6,2),
+  production_neige_artificielle_m3 NUMERIC(10,2)
 );
+
 CREATE INDEX IF NOT EXISTS idx_snow_measures_station ON snow_measures(station_id);
 CREATE INDEX IF NOT EXISTS idx_snow_measures_date ON snow_measures(date_heure);
 
@@ -86,7 +87,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
       [6.144061874947561, 45.009154959403894]
     ]
   }'), 4326),
-  'red', 'close', 800),
+  'red', 'close', 800);
 
 -- Snow measures
 INSERT INTO snow_measures (

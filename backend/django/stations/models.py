@@ -7,7 +7,7 @@ class Station(models.Model):
 
     class Meta:
         db_table = 'stations'
-        managed = False  # la table existe déjà (créée par init.sql)
+        managed = True  # la table existe déjà (créée par init.sql)
 
 class Piste(models.Model):
     id = models.AutoField(primary_key=True)
@@ -23,7 +23,7 @@ class Piste(models.Model):
 
     class Meta:
         db_table = 'pistes'
-        managed = False
+        managed = True
 
 
 class SnowMeasure(models.Model):
@@ -32,7 +32,7 @@ class SnowMeasure(models.Model):
         Station,
         on_delete=models.CASCADE,
         db_column='station_id',
-        related_name='snow_measures'
+        related_name='snow_measures',
     )
     date_heure = models.DateTimeField(db_column='date_heure')
     temperature_c = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -44,4 +44,4 @@ class SnowMeasure(models.Model):
 
     class Meta:
         db_table = 'snow_measures'
-        managed = False
+        managed = True

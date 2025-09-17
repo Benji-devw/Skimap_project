@@ -38,7 +38,6 @@ class StationSerializer(serializers.ModelSerializer):
 
 class SnowMeasureSerializer(serializers.ModelSerializer):
     station_nom = serializers.CharField(source='station.nom', read_only=True)
-    station_id = serializers.IntegerField(source='station_id', read_only=True)
     station = StationSerializer(read_only=True)
     class Meta:
         model = SnowMeasure
@@ -51,7 +50,6 @@ class SnowMeasureSerializer(serializers.ModelSerializer):
             "hauteur_neige_naturelle_cm",
             "hauteur_neige_artificielle_cm",
             "production_neige_artificielle_m3",
-            "station_id",
             "station_nom",
             "station",  
         )
