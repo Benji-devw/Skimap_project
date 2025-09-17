@@ -53,3 +53,26 @@ or
 > TRUNCATE pistes, stations RESTART IDENTITY CASCADE;
 > \i /docker-entrypoint-initdb.d/init.sql
 ```
+
+# TODO
+
+- [x] Init Projet Django + DRF + PostGIS (GeoDjango) configuré
+- [x] CORS activé pour le front (Vite)
+- [x] Modèles `Station` (Point) et `Piste` (LineString) mappés aux tables existantes
+- [x] Serializers exposant GeoJSON et longitude/latitude pour `Station`
+- [x] ViewSets REST: `StationViewSet`, `PisteViewSet` avec filtres (`station_id`, recherche spatiale via `lat`/`lng`/`rayon`)
+- [x] Routes DRF sous préfixe `/api/` via `DefaultRouter`
+- [x] Script `init.sql` (création tables, index GIST, colonnes additionnelles, seed de données)
+- [x] Ajoute un modèle pour les mesures météo/neige :
+température, précipitations, hauteur de neige, production de neige artificielle.
+- [x] Crée un endpoint d’API REST :
+GET /stations/{id}/snow → retourne les mesures/production pour cette station.
+POST /stations/{id}/snow → permet d’insérer de nouvelles mesures (même simulées).
+- [ ] Endpoint dédié ou doc claire pour stations proches (ex: `/api/stations/proches/`) au lieu de seulement des query params
+- [ ] Pagination, tri, et filtres supplémentaires (nom, type, état) sur les listes
+- [ ] Endpoint GeoJSON FeatureCollection pour `pistes` et `stations` (export direct)
+- [ ] Tests unitaires (serializers, filtres spatiaux, endpoints) dans `stations/tests.py`
+- [ ] Admin Django: enregistrement `Station`/`Piste` avec aperçus géométriques
+- [ ] Documentation OpenAPI (Swagger) avec `drf-spectacular` ou `drf-yasg`
+- [ ] Commande de management pour importer des pistes/stations depuis GeoJSON/GPX
+- [ ] Sécurisation basique (throttling, permissions si nécessaire) et limites de taille de réponse

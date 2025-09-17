@@ -29,6 +29,12 @@ INSERT INTO stations (id, nom, geom) VALUES
    "type":"Point",
    "coordinates":[6.068348,45.092624]
  }'), 4326));
+INSERT INTO stations (id, nom, geom) VALUES
+ (2, 'Les Deux Alpes',
+ ST_SetSRID(ST_GeomFromGeoJSON('{
+   "type":"Point",
+   "coordinates":[6.125625180539144,45.01028601911859]
+ }'), 4326));
 
 -- Pistes principales
 INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
@@ -43,7 +49,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
      [6.133136682443073,45.083831058853924]
    ]
  }'), 4326),
- 'noire', 'ouverte', 16000),
+ 'black', 'open', 16000),
 
 -- Alpette (rouge)
 (2, 1, 'Alpette',
@@ -54,4 +60,15 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
      [6.073180386279292,45.129994502369904]
    ]
  }'), 4326),
- 'rouge', 'ouverte', 1200),
+ 'red', 'close', 1200),
+
+-- Vallon du Diable (rouge)
+(3, 2, 'Vallon du Diable',
+ ST_SetSRID(ST_GeomFromGeoJSON('{
+   "type":"LineString",
+   "coordinates":[
+     [6.148139039034766, 44.997573878012524],
+     [6.144061874947561, 45.009154959403894]
+   ]
+ }'), 4326),
+ 'red', 'close', 800)

@@ -1,5 +1,3 @@
-import mapboxgl from "mapbox-gl";
-
 export function enable3D(map: mapboxgl.Map) {
   if (!map.getSource("mapbox-dem")) {
     map.addSource("mapbox-dem", {
