@@ -43,13 +43,13 @@ class SnowMeasureSerializer(serializers.ModelSerializer):
         model = SnowMeasure
         fields = (
             "id",
-            "date_heure",
+            "date_time",
             "temperature_c",
-            "precipitations_mm",
-            "hauteur_neige_totale_cm",
-            "hauteur_neige_naturelle_cm",
-            "hauteur_neige_artificielle_cm",
-            "production_neige_artificielle_m3",
+            "precipitation_mm",
+            "total_snow_height_cm",
+            "natural_snow_height_cm",
+            "artificial_snow_height_cm",
+            "artificial_snow_production_m3",
             "station_nom",
             "station",  
         )

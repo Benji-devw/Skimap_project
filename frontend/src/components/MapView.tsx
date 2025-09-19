@@ -145,9 +145,33 @@ const MapView = forwardRef<MapViewHandle, Props>(
           station.longitude,
           station.latitude,
         ];
+
+        // Find last snow measure for this station
+        const lastSnowMeasure = snowMeasures
+          .filter((s) => s.station.id === station.id)
+          .reduce((latest: SnowMeasure | null, current: SnowMeasure) => {
+            return !latest ||
+              new Date(current.date_time) > new Date(latest.date_time)
+              ? current
+              : latest;
+          }, null);
+
+        const popupContent = lastSnowMeasure
+          ? `
+        <b>${station.nom}</b><br/><hr/>
+        📅 ${new Date(lastSnowMeasure.date_time).toLocaleDateString()}<br/>
+        🌡 ${lastSnowMeasure.temperature_c}°C<br/>
+        🌧 ${lastSnowMeasure.precipitation_mm} mm<br/>
+        ❄️ Total: ${lastSnowMeasure.total_snow_height_cm} cm<br/>
+        ⛰ Naturelle: ${lastSnowMeasure.natural_snow_height_cm} cm<br/>
+        🏔 Artificielle: ${lastSnowMeasure.artificial_snow_height_cm} cm<br/>
+        💧 Production: ${lastSnowMeasure.artificial_snow_production_m3} m³
+      `
+          : `<b>${station.nom}</b><hr/>`;
+
         const marker = new mapboxgl.Marker()
           .setLngLat(coord)
-          .setPopup(new mapboxgl.Popup().setText(station.nom))
+          .setPopup(new mapboxgl.Popup().setHTML(popupContent))
           .addTo(map);
 
         marker.getElement().addEventListener("click", async () => {
@@ -208,7 +232,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
 
     // console.log(stations);
     // console.log(targetPisteId);
-    console.log(snowMeasures);
+    // console.log(snowMeasures);
 
     return <div ref={containerRef} className="map-container" />;
   }

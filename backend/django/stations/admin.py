@@ -12,4 +12,4 @@ class PisteAdmin(admin.ModelAdmin):
 
 @admin.register(SnowMeasure)
 class SnowMeasureAdmin(admin.ModelAdmin):
-    list_display = ("id", "date_heure", "temperature_c", "precipitations_mm", "hauteur_neige_totale_cm", "hauteur_neige_naturelle_cm", "hauteur_neige_artificielle_cm", "production_neige_artificielle_m3", "station_id")
+    list_display = ("id", "date_time", "temperature_c", "precipitation_mm", "total_snow_height_cm", "natural_snow_height_cm", "artificial_snow_height_cm", "artificial_snow_production_m3", "station_id")

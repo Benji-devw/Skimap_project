@@ -37,12 +37,12 @@ class StationViewSet(viewsets.ModelViewSet):
             if start:
                 dt = parse_datetime(start)
                 if dt:
-                    mesures = mesures.filter(date_heure__gte=dt)
+                    mesures = mesures.filter(date_time__gte=dt)
             if end:
                 dt = parse_datetime(end)
                 if dt:
-                    mesures = mesures.filter(date_heure__lte=dt)
-            mesures = mesures.order_by('-date_heure')
+                    mesures = mesures.filter(date_time__lte=dt)
+            mesures = mesures.order_by('-date_time')
             if limit:
                 try:
                     mesures = mesures[: int(limit)]
@@ -57,13 +57,13 @@ class StationViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             mesure = SnowMeasure.objects.create(
                 station=station,
-                date_heure=serializer.validated_data.get('date_heure'),
+                date_time=serializer.validated_data.get('date_time'),
                 temperature_c=serializer.validated_data.get('temperature_c'),
-                precipitations_mm=serializer.validated_data.get('precipitations_mm'),
-                hauteur_neige_totale_cm=serializer.validated_data.get('hauteur_neige_totale_cm'),
-                hauteur_neige_naturelle_cm=serializer.validated_data.get('hauteur_neige_naturelle_cm'),
-                hauteur_neige_artificielle_cm=serializer.validated_data.get('hauteur_neige_artificielle_cm'),
-                production_neige_artificielle_m3=serializer.validated_data.get('production_neige_artificielle_m3'),
+                precipitation_mm=serializer.validated_data.get('precipitation_mm'),
+                total_snow_height_cm=serializer.validated_data.get('total_snow_height_cm'),
+                natural_snow_height_cm=serializer.validated_data.get('natural_snow_height_cm'),
+                artificial_snow_height_cm=serializer.validated_data.get('artificial_snow_height_cm'),
+                artificial_snow_production_m3=serializer.validated_data.get('artificial_snow_production_m3'),
             )
             return Response(SnowMeasureSerializer(mesure).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

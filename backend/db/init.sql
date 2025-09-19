@@ -25,17 +25,17 @@ ALTER TABLE pistes ADD COLUMN IF NOT EXISTS longueur INTEGER;
 CREATE TABLE IF NOT EXISTS snow_measures (
   id SERIAL PRIMARY KEY,
   station_id INTEGER NOT NULL REFERENCES stations(id) ON DELETE CASCADE,
-  date_heure TIMESTAMP NOT NULL,
+  date_time TIMESTAMP NOT NULL,
   temperature_c NUMERIC(5,2),
-  precipitations_mm NUMERIC(6,2),
-  hauteur_neige_totale_cm NUMERIC(6,2),
-  hauteur_neige_naturelle_cm NUMERIC(6,2),
-  hauteur_neige_artificielle_cm NUMERIC(6,2),
-  production_neige_artificielle_m3 NUMERIC(10,2)
+  precipitation_mm NUMERIC(6,2),
+  total_snow_height_cm NUMERIC(6,2),
+  natural_snow_height_cm NUMERIC(6,2),
+  artificial_snow_height_cm NUMERIC(6,2),
+  artificial_snow_production_m3 NUMERIC(10,2)
 );
 
 CREATE INDEX IF NOT EXISTS idx_snow_measures_station ON snow_measures(station_id);
-CREATE INDEX IF NOT EXISTS idx_snow_measures_date ON snow_measures(date_heure);
+CREATE INDEX IF NOT EXISTS idx_snow_measures_date ON snow_measures(date_time);
 
 -- Seed: (coordonnées WGS84 = LON, LAT)
 -- Station : Alpe d'Huez
@@ -92,13 +92,13 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
 -- Snow measures
 INSERT INTO snow_measures (
   station_id,
-  date_heure,
+  date_time,
   temperature_c,
-  precipitations_mm,
-  hauteur_neige_totale_cm,
-  hauteur_neige_naturelle_cm,
-  hauteur_neige_artificielle_cm,
-  production_neige_artificielle_m3
+  precipitation_mm,
+  total_snow_height_cm,
+  natural_snow_height_cm,
+  artificial_snow_height_cm,
+  artificial_snow_production_m3
 ) VALUES
   (1, '2025-01-01 08:00:00', -2.5,  5, 20, 15,  5,   0),
   (1, '2025-01-02 08:00:00', -1.0,  0, 22, 17,  5,  50),

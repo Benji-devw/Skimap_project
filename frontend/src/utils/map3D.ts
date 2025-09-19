@@ -6,6 +6,12 @@ function animateTerrain(
   targetPitch: number,
   duration = 1000
 ) {
+  // Check if the source 'mapbox-dem' exists
+  if (!map.getSource('mapbox-dem')) {
+    console.warn("Source 'mapbox-dem' not found. Skipping terrain animation.");
+    return;
+  }
+
   let startTime: number | null = null;
 
   function animate(time: number) {

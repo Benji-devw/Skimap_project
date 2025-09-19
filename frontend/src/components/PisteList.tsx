@@ -15,7 +15,7 @@ export default function PisteList({ pistes, setTargetPisteId }: Props) {
     );
   }
   
-  console.log(pistes);
+  // console.log(pistes);
   return (
     <ul className="piste-list">
       {pistes.map((p) => {

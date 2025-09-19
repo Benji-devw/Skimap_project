@@ -27,13 +27,14 @@ export type Station = {
 
 export type SnowMeasure = {
   id: number;
-  date_heure: string;
+  date_time: string;
   temperature_c: number | null;
-  precipitations_mm: number | null;
-  hauteur_neige_totale_cm: number | null;
-  hauteur_neige_naturelle_cm: number | null;
-  hauteur_neige_artificielle_cm: number | null;
-  production_neige_artificielle_m3: number | null;
+  precipitation_mm: number | null;
+  total_snow_height_cm: number | null;
+  natural_snow_height_cm: number | null;
+  artificial_snow_height_cm: number | null;
+  artificial_snow_production_m3: number | null;
   station_id: number;
   station_nom: string;
+  station: Station;
 };
