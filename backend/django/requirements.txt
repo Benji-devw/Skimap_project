@@ -2,3 +2,16 @@ django
 djangorestframework
 psycopg2-binary
 django-cors-headers
+
+# Bibliothèques pour traiter les données LiDAR
+laspy
+pdal
+numpy
+rasterio
+scipy
+
+# Justification :
+#- `laspy` : Lire/écrire fichiers LAS/LAZ
+#- `pdal` : Pipeline de traitement de nuages de points (classification, filtrage)
+#- `rasterio` : Créer des rasters (GeoTIFF) à partir des nuages de points
+#- `numpy` & `scipy` : Interpolation et calculs mathématiques

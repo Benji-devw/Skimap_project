@@ -10,8 +10,14 @@
 > python -m venv .venv
 > source .venv/bin/activate
 > pip install -r requirements.txt
-> brew install gdal geos
+> brew install gdal geos pdal
 ```
+
+Justification** :
+- `laspy` : Lire/écrire fichiers LAS/LAZ
+- `pdal` : Pipeline de traitement de nuages de points (classification, filtrage)
+- `rasterio` : Créer des rasters (GeoTIFF) à partir des nuages de points
+- `numpy` & `scipy` : Interpolation et calculs mathématiques
 
 ## Étape 2 – Migration
 
