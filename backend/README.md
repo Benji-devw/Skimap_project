@@ -5,6 +5,12 @@
 ```powershell
 > cd ..\SkiMap_Project\backend\django
 > python manage.py startapp stations
+
+-- For Mac OS
+> python -m venv .venv
+> source .venv/bin/activate
+> pip install -r requirements.txt
+> brew install gdal geos
 ```
 
 ## Étape 2 – Migration
@@ -17,9 +23,9 @@
 
 ## Étape 3 – Vérifier l’API
 
-```powershell
-> curl http://localhost:8000/api/stations/
-> curl http://localhost:8000/api/pistes/
+```terminal
+> curl http://localhost:8000/api/stations | jq
+> curl http://localhost:8000/api/pistes | jq
 ```
 
 ### 🌍 API publique (préfixe /api/)
@@ -51,6 +57,6 @@
 
 ## Etape 4 - Update data
 
-```powershell
+```terminal
 > docker compose down -v && docker compose up -d
 ```
