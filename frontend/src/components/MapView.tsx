@@ -133,20 +133,72 @@ const MapView = forwardRef<MapViewHandle, Props>(
         ? "mapbox://styles/mapbox/satellite-streets-v12"
         : "mapbox://styles/mapbox/streets-v12";
 
-      // Sauvegarder l'état 3D avant le changement de style
-      const was3D = is3D;
+      // Sauvegarder TOUS les états de la carte avant le changement de style
+      const savedState = {
+        center: map.getCenter(),
+        zoom: map.getZoom(),
+        pitch: map.getPitch(),
+        bearing: map.getBearing(),
+        was3D: is3D,
+        wasShowingSnow: showSnowLayer,
+      };
+
+      // Ajouter un fade pour transition fluide
+      const canvas = map.getCanvas();
+      canvas.style.transition = "opacity 0.3s";
+      canvas.style.opacity = "0.5";
 
       // Appliquer le nouveau style
       map.setStyle(style);
 
-      // Réappliquer la 3D et les pistes après le chargement du nouveau style
+      // Réappliquer TOUS les états après le chargement du nouveau style
       const onStyleLoad = () => {
-        if (was3D) {
-          enable3D(map);
+        // Restaurer la position/orientation immédiatement (sans animation)
+        map.jumpTo({
+          center: savedState.center,
+          zoom: savedState.zoom,
+          pitch: savedState.pitch,
+          bearing: savedState.bearing,
+        });
+
+        // Réactiver la 3D si elle était active
+        if (savedState.was3D) {
+          enable3D(map, true);
+
+          // Attendre que la carte soit complètement chargée (y compris les tuiles terrain)
+          const onMapIdle = () => {
+            // Réafficher les pistes si elles étaient affichées
+            if (pistes.length > 0) {
+              renderPistesLayer(map, pistes);
+            }
+
+            // Réafficher la couche de neige si elle était active
+            if (savedState.wasShowingSnow) {
+              renderSnowLayer(map);
+            }
+
+            // Restaurer l'opacité
+            canvas.style.opacity = "1";
+
+            map.off("idle", onMapIdle);
+          };
+
+          map.once("idle", onMapIdle);
+        } else {
+          // Si pas de 3D, restaurer immédiatement
+          if (pistes.length > 0) {
+            renderPistesLayer(map, pistes);
+          }
+
+          if (savedState.wasShowingSnow) {
+            renderSnowLayer(map);
+          }
+
+          setTimeout(() => {
+            canvas.style.opacity = "1";
+          }, 100);
         }
-        if (pistes.length > 0) {
-          renderPistesLayer(map, pistes);
-        }
+
         map.off("style.load", onStyleLoad);
       };
 

@@ -172,15 +172,20 @@ export default function PisteDrawer({
     return R * c;
   };
 
+  if (!selectedStation) {
+    return null;
+  }
+
   return (
     <div className="piste-drawer">
       <h3>✏️ Tracer une nouvelle piste</h3>
 
       {!isDrawing ? (
-        <button onClick={handleStartDrawing} disabled={!selectedStation}>
-          {!selectedStation
-            ? "🏔️ Sélectionnez une station"
-            : "🖊️ Commencer le tracé"}
+        <button
+          onClick={handleStartDrawing}
+          title="Commencer à tracer une nouvelle piste"
+        >
+          🖊️ Commencer le tracé
         </button>
       ) : (
         <div className="drawing-controls">

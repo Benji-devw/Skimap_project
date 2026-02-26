@@ -60,6 +60,7 @@ export default function App() {
             setPistes([]);
             setSelectedStation(null);
             setTargetPisteId(null);
+            setShowSnowLayer(false);
           }}
         />
         <CustomMapbar
@@ -69,6 +70,7 @@ export default function App() {
           setIsSatellite={setIsSatellite}
           showSnowLayer={showSnowLayer}
           setShowSnowLayer={setShowSnowLayer}
+          selectedStation={selectedStation}
           onResetBearing={() => mapViewRef.current?.resetBearing()}
         />
         <Sidebar
