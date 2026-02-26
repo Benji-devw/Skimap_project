@@ -13,23 +13,34 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-""" 
+"""
+
 from django.contrib import admin
 from django.http import JsonResponse
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from stations.views import StationViewSet, PisteViewSet, SnowMeasureViewSet
+from stations.views import (
+    PisteViewSet,
+    SnowMeasureViewSet,
+    StationViewSet,
+    snow_at_point,
+    snow_coverage_geojson,
+)
+
 
 def health(_request):
     return JsonResponse({"status": "ok"})
 
+
 router = DefaultRouter()
-router.register(r'stations', StationViewSet, basename='station')
-router.register(r'pistes', PisteViewSet, basename='piste')
-router.register(r'snow_measures', SnowMeasureViewSet, basename='snow_measure')
+router.register(r"stations", StationViewSet, basename="station")
+router.register(r"pistes", PisteViewSet, basename="piste")
+router.register(r"snow_measures", SnowMeasureViewSet, basename="snow_measure")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health),
-    path('api/', include(router.urls)),
+    path("api/", include(router.urls)),
+    path("api/snow-coverage/", snow_coverage_geojson, name="snow-coverage"),
+    path("api/snow-at-point/", snow_at_point, name="snow-at-point"),
 ]

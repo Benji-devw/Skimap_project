@@ -16,6 +16,7 @@ export default function App() {
   const [is3D, setIs3D] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [showSnowLayer, setShowSnowLayer] = useState(false);
   const [drawCoordinates, setDrawCoordinates] = useState<[number, number][]>(
     [],
   );
@@ -48,6 +49,7 @@ export default function App() {
         targetPisteId={targetPisteId}
         setTargetPisteId={setTargetPisteId}
         isDrawing={isDrawing}
+        showSnowLayer={showSnowLayer}
         coordinates={drawCoordinates}
         setCoordinates={setDrawCoordinates}
       />
@@ -65,6 +67,8 @@ export default function App() {
           setIs3D={setIs3D}
           isSatellite={isSatellite}
           setIsSatellite={setIsSatellite}
+          showSnowLayer={showSnowLayer}
+          setShowSnowLayer={setShowSnowLayer}
           onResetBearing={() => mapViewRef.current?.resetBearing()}
         />
         <Sidebar

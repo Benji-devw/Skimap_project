@@ -4,6 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { Station, Piste, SnowMeasure } from "../types";
 import { enable3D, disable3D } from "../utils/map3D";
 import { renderPistesLayer } from "../utils/pistesLayer";
+import { renderSnowLayer, removeSnowLayer } from "../utils/snowLayer";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
@@ -21,6 +22,7 @@ type Props = {
   targetPisteId: number | null;
   setTargetPisteId: (id: number | null) => void;
   isDrawing: boolean;
+  showSnowLayer: boolean;
   coordinates: [number, number][];
   setCoordinates: (coords: [number, number][]) => void;
 };
@@ -44,6 +46,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
       targetPisteId,
       setTargetPisteId,
       isDrawing,
+      showSnowLayer,
       coordinates,
       setCoordinates,
     },
@@ -149,6 +152,27 @@ const MapView = forwardRef<MapViewHandle, Props>(
 
       map.on("style.load", onStyleLoad);
     }, [isSatellite]);
+
+    // Toggle snow layer
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map) return;
+
+      if (!map.isStyleLoaded()) {
+        map.once("load", () => {
+          if (showSnowLayer) {
+            renderSnowLayer(map);
+          }
+        });
+        return;
+      }
+
+      if (showSnowLayer) {
+        renderSnowLayer(map);
+      } else {
+        removeSnowLayer(map);
+      }
+    }, [showSnowLayer]);
 
     // Add markers for stations
     useEffect(() => {

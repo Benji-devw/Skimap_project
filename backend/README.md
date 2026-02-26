@@ -66,3 +66,7 @@ Justification** :
 ```terminal
 > docker compose down -v && docker compose up -d
 ```
+
+```terminal
+> docker exec -it skimap-django pip install laspy numpy scipy rasterio
+```
