@@ -69,7 +69,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
       const map = new mapboxgl.Map({
         container: containerRef.current,
         style: "mapbox://styles/mapbox/streets-v12",
-        center: [6.068348, 45.092624],
+        center: [6.201809, 44.620601],
         zoom: 13,
         bearing: 0,
       });
