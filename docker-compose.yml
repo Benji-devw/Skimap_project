@@ -1,7 +1,7 @@
-version: '3.9'
 services:
   db:
     image: postgis/postgis:16-3.4
+    platform: linux/amd64
     container_name: skimap-postgis
     environment:
       POSTGRES_DB: skimap
@@ -12,7 +12,11 @@ services:
     volumes:
       - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10

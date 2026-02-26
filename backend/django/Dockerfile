@@ -1,18 +1,31 @@
-FROM python:3.11-slim
+# Utilisation d'une image optimisée pour les paquets scientifiques
+FROM condaforge/mambaforge:latest
 
-# Dépendances système (PostGIS client + psycopg2)
-RUN apt-get update && apt-get install -y \
-    binutils libproj-dev gdal-bin postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+# Installation des outils système et SIG via Mamba
+# On installe tout d'un coup : Django, GDAL, PDAL, et les libs Python
+RUN mamba install -y -c conda-forge \
+    python=3.11 \
+    django \
+    djangorestframework \
+    psycopg2 \
+    django-cors-headers \
+    gdal \
+    pdal \
+    python-pdal \
+    laspy \
+    rasterio \
+    numpy \
+    scipy \
+    && mamba clean -afy
 
-# Créer un dossier app
+# Créer le dossier app
 WORKDIR /app
 
-# Installer Django et dépendances
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copier le code
+# Copier le reste du code
 COPY . .
 
+# On expose le port 8000
+EXPOSE 8000
+
+# Commande de lancement
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

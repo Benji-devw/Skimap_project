@@ -54,8 +54,17 @@ INSERT INTO stations (id, nom, geom) VALUES
     "coordinates":[6.125625180539144,45.01028601911859]
   }'), 4326));
 
+-- Station : Ancelle
+INSERT INTO stations (id, nom, geom) VALUES
+(3, 'Ancelle',
+  ST_SetSRID(ST_GeomFromGeoJSON('{
+    "type":"Point",
+    "coordinates":[6.201809, 44.620601]
+  }'), 4326));
+
 -- Pistes principales
 INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
+
 -- Sarenne (noire, la plus longue du monde)
 (1, 1, 'Sarenne',
   ST_SetSRID(ST_GeomFromGeoJSON('{
@@ -68,6 +77,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
     ]
   }'), 4326),
   'black', 'open', 16000),
+
 -- Alpette (rouge)
 (2, 1, 'Alpette',
   ST_SetSRID(ST_GeomFromGeoJSON('{
@@ -78,6 +88,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
     ]
   }'), 4326),
   'red', 'close', 1200),
+
 -- Vallon du Diable (rouge)
 (3, 2, 'Vallon du Diable',
   ST_SetSRID(ST_GeomFromGeoJSON('{
@@ -87,7 +98,19 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
       [6.144061874947561, 45.009154959403894]
     ]
   }'), 4326),
-  'red', 'close', 800);
+  'red', 'close', 800),
+
+-- Coste Belle (rouge)
+(4, 3, 'Coste Belle',
+  ST_SetSRID(ST_GeomFromGeoJSON('{
+    "type":"LineString",
+    "coordinates":[
+        [6.20853, 44.61915],
+        [6.20512, 44.62245],
+        [6.20235, 44.62482]
+    ]
+  }'), 4326),
+  'red', 'open', 1500);
 
 -- Snow measures
 INSERT INTO snow_measures (
@@ -105,5 +128,3 @@ INSERT INTO snow_measures (
   (1, '2025-01-03 08:00:00',  1.2, 10, 18, 14,  4, 200),
   (2, '2025-01-04 08:00:00',  0.0,  2, 17, 12,  5, 100),
   (2, '2025-01-05 08:00:00', -3.0,  0, 25, 18,  7,   0);
-
- 
