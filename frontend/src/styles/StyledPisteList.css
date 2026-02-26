@@ -1,78 +1,145 @@
 .piste-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .piste-item {
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #2a2f3a;
-  /* background: linear-gradient(180deg, rgba(26,29,37,0.95), rgba(20,22,28,0.95));
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #2a2f3a;
+    /* background: linear-gradient(180deg, rgba(26,29,37,0.95), rgba(20,22,28,0.95));
   box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 20px rgba(0,0,0,0.25); */
-  transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+    position: relative;
+}
+
+.piste-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.piste-content:hover {
+    opacity: 0.9;
 }
 
 .piste-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-1px);
-  border-color: #394150;
-  box-shadow: 0 2px 0 rgba(255,255,255,0.05) inset, 0 10px 24px rgba(0,0,0,0.35);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+    border-color: #394150;
+    box-shadow:
+        0 2px 0 rgba(255, 255, 255, 0.05) inset,
+        0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.delete-btn {
+    background: rgba(185, 28, 28, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+.delete-btn:hover {
+    background: rgba(185, 28, 28, 0.4);
+    border-color: rgba(239, 68, 68, 0.6);
+    color: #fee2e2;
+    transform: scale(1.05);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
 }
 
 .piste-tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .piste-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
 }
 
 .piste-name {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: 600;
-  color: #e5e7eb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    color: #e5e7eb;
 }
 
 /* Badges generiques */
 .tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  font-size: 12px;
-  line-height: 1.4;
-  border-radius: 999px;
-  background: #273041;
-  color: #cdd6e3;
-  border: 1px solid rgba(255,255,255,0.06);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    border-radius: 999px;
+    background: #273041;
+    color: #cdd6e3;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* Type de piste */
-.tag-type.tag-noire { background: #1f1f1f; color: #ffffff; border-color: rgba(255,255,255,0.12); }
-.tag-type.tag-rouge { background: #b91c1c8a; color: #ffffff; border-color: rgba(255,255,255,0.12); }
-.tag-type.tag-bleue { background: #2563eb; color: #ffffff; border-color: rgba(255,255,255,0.12); }
-.tag-type.tag-verte { background: #16a34a; color: #ffffff; border-color: rgba(255,255,255,0.12); }
+.tag-type.tag-noire {
+    background: #1f1f1f;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.tag-type.tag-rouge {
+    background: #b91c1c8a;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.tag-type.tag-bleue {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.tag-type.tag-verte {
+    background: #16a34a;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
 
 /* Etat de la piste */
-.tag-etat.tag-ouverte { background: #065f46; color: #c8f7df; border-color: rgba(255,255,255,0.12); }
-.tag-etat.tag-fermee { background: #7f1d1d; color: #ffe2e2; border-color: rgba(255,255,255,0.12); }
+.tag-etat.tag-ouverte {
+    background: #065f46;
+    color: #c8f7df;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.tag-etat.tag-fermee {
+    background: #7f1d1d;
+    color: #ffe2e2;
+    border-color: rgba(255, 255, 255, 0.12);
+}
 
 /* Longueur */
-.tag-length { background: #394150; color: #e5e7eb; }
+.tag-length {
+    background: #394150;
+    color: #e5e7eb;
+}

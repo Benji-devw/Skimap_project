@@ -5,6 +5,7 @@ import MapView, { type MapViewHandle } from "./components/MapView";
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import CustomMapbar from "./components/CustomMapbar";
+import PisteDrawer from "./components/PisteDrawer";
 
 export default function App() {
   const [stations, setStations] = useState<Station[]>([]);
@@ -14,7 +15,21 @@ export default function App() {
   const [targetPisteId, setTargetPisteId] = useState<number | null>(null);
   const [is3D, setIs3D] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawCoordinates, setDrawCoordinates] = useState<[number, number][]>(
+    [],
+  );
   const mapViewRef = useRef<MapViewHandle | null>(null);
+
+  const handlePisteCreated = async () => {
+    // Recharger les pistes de la station sélectionnée
+    if (selectedStation) {
+      const pistesResp: Piste[] = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/pistes/?station_id=${selectedStation.id}`,
+      ).then((r) => r.json());
+      setPistes(Array.isArray(pistesResp) ? pistesResp : []);
+    }
+  };
 
   return (
     <>
@@ -32,6 +47,9 @@ export default function App() {
         isSatellite={isSatellite}
         targetPisteId={targetPisteId}
         setTargetPisteId={setTargetPisteId}
+        isDrawing={isDrawing}
+        coordinates={drawCoordinates}
+        setCoordinates={setDrawCoordinates}
       />
       <div className="ui">
         <Topbar
@@ -53,6 +71,15 @@ export default function App() {
           pistes={pistes}
           selectedStation={selectedStation}
           setTargetPisteId={setTargetPisteId}
+          onPisteDeleted={handlePisteCreated}
+        />
+        <PisteDrawer
+          selectedStation={selectedStation}
+          isDrawing={isDrawing}
+          setIsDrawing={setIsDrawing}
+          onPisteCreated={handlePisteCreated}
+          coordinates={drawCoordinates}
+          setCoordinates={setDrawCoordinates}
         />
       </div>
     </>

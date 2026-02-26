@@ -20,6 +20,9 @@ type Props = {
   isSatellite: boolean;
   targetPisteId: number | null;
   setTargetPisteId: (id: number | null) => void;
+  isDrawing: boolean;
+  coordinates: [number, number][];
+  setCoordinates: (coords: [number, number][]) => void;
 };
 
 export type MapViewHandle = {
@@ -40,11 +43,15 @@ const MapView = forwardRef<MapViewHandle, Props>(
       isSatellite,
       targetPisteId,
       setTargetPisteId,
+      isDrawing,
+      coordinates,
+      setCoordinates,
     },
-    ref
+    ref,
   ) => {
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const markersRef = useRef<mapboxgl.Marker[]>([]);
 
     // Reset Bearing to north
     useImperativeHandle(ref, () => ({
@@ -98,10 +105,18 @@ const MapView = forwardRef<MapViewHandle, Props>(
       if (!map) return;
 
       if (map.isStyleLoaded()) {
-        is3D ? enable3D(map) : disable3D(map);
+        if (is3D) {
+          enable3D(map);
+        } else {
+          disable3D(map);
+        }
       } else {
         map.once("load", () => {
-          is3D ? enable3D(map) : disable3D(map);
+          if (is3D) {
+            enable3D(map);
+          } else {
+            disable3D(map);
+          }
         });
       }
     }, [is3D]);
@@ -193,7 +208,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
           const pistesResp: Piste[] = await fetch(
             `${import.meta.env.VITE_API_URL}/api/pistes/?station_id=${
               station.id
-            }`
+            }`,
           ).then((r) => r.json());
           const list = Array.isArray(pistesResp) ? pistesResp : [];
           setPistes(list);
@@ -230,12 +245,87 @@ const MapView = forwardRef<MapViewHandle, Props>(
       }
     }, [pistes.length]);
 
+    // Handle drawing mode - add click event listener
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map) return;
+
+      const handleMapClick = (e: mapboxgl.MapMouseEvent) => {
+        if (!isDrawing) return;
+
+        const { lng, lat } = e.lngLat;
+        const newCoords: [number, number][] = [...coordinates, [lng, lat]];
+        setCoordinates(newCoords);
+
+        // Add a marker for the clicked point
+        const marker = new mapboxgl.Marker({ color: "#FF0000", scale: 0.8 })
+          .setLngLat([lng, lat])
+          .addTo(map);
+        markersRef.current.push(marker);
+
+        // Update or create the drawing line
+        updateDrawingLine(map, newCoords);
+      };
+
+      if (isDrawing) {
+        map.getCanvas().style.cursor = "crosshair";
+        map.on("click", handleMapClick);
+      } else {
+        map.getCanvas().style.cursor = "";
+        // Clean up markers when not drawing
+        markersRef.current.forEach((m) => m.remove());
+        markersRef.current = [];
+        // Remove drawing layer
+        if (map.getLayer("drawing-line")) map.removeLayer("drawing-line");
+        if (map.getSource("drawing")) map.removeSource("drawing");
+      }
+
+      return () => {
+        map.off("click", handleMapClick);
+      };
+    }, [isDrawing, coordinates]);
+
+    // Update drawing line on the map
+    const updateDrawingLine = (
+      map: mapboxgl.Map,
+      coords: [number, number][],
+    ) => {
+      const geojson: GeoJSON.Feature<GeoJSON.LineString> = {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: coords,
+        },
+      };
+
+      if (map.getSource("drawing")) {
+        (map.getSource("drawing") as mapboxgl.GeoJSONSource).setData(geojson);
+      } else {
+        map.addSource("drawing", {
+          type: "geojson",
+          data: geojson,
+        });
+
+        map.addLayer({
+          id: "drawing-line",
+          type: "line",
+          source: "drawing",
+          paint: {
+            "line-color": "#FF0000",
+            "line-width": 4,
+            "line-opacity": 0.8,
+          },
+        });
+      }
+    };
+
     // console.log(stations);
     // console.log(targetPisteId);
     // console.log(snowMeasures);
 
     return <div ref={containerRef} className="map-container" />;
-  }
+  },
 );
 
 export default MapView;

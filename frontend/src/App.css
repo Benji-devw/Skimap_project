@@ -1,149 +1,261 @@
 /* Variables de thème (simple) */
 :root {
-  --map-accent: #ff3b3b;
-  --map-light: #ffffff;
-  --bg: #0f172a;
-  --fg: #e2e8f0;
+    --map-accent: #ff3b3b;
+    --map-light: #ffffff;
+    --bg: #0f172a;
+    --fg: #e2e8f0;
 }
 
 /* Mise en page plein écran */
-html, body, #root {
-  height: 100%;
+html,
+body,
+#root {
+    height: 100%;
 }
 
 body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  color: var(--fg);
-  background: linear-gradient(180deg, #0b1220, var(--bg));
+    margin: 0;
+    font-family:
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        Segoe UI,
+        Roboto,
+        Helvetica,
+        Arial,
+        "Apple Color Emoji",
+        "Segoe UI Emoji";
+    color: var(--fg);
+    background: linear-gradient(180deg, #0b1220, var(--bg));
 }
 
 .map-container {
-  height: 100vh;
-  width: 100%;
+    height: 100vh;
+    width: 100%;
 }
 
 /* Popups Mapbox un peu plus lisibles */
 .mapboxgl-popup-content {
-  font-size: 14px;
-  padding: 8px 10px;
-  border-radius: 8px;
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 8px;
 }
 
 /* Contrôles Mapbox légèrement adoucis */
 .mapboxgl-ctrl button {
-  border-radius: 6px;
+    border-radius: 6px;
 }
 
 /* UI overlay */
 .ui {
-  position: fixed;
-  inset: 0;
-  pointer-events: none; /* laisse la carte capter les interactions par défaut */
+    position: fixed;
+    inset: 0;
+    pointer-events: none; /* laisse la carte capter les interactions par défaut */
 }
 
 .topbar {
-  pointer-events: auto;
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    pointer-events: auto;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
 }
 
 .brand {
-  font-weight: 700;
-  letter-spacing: 0.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 .spacer {
-  flex: 1;
+    flex: 1;
 }
 
 .status {
-  opacity: 0.9;
+    opacity: 0.9;
 }
 
 .btn {
-  pointer-events: auto;
-  background: var(--map-accent);
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
+    pointer-events: auto;
+    background: var(--map-accent);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 .btn-small {
-  padding: 6px 10px;
-  font-size: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
 }
 
 .sidebar {
-  pointer-events: auto;
-  position: absolute;
-  right: 12px;
-  top: 82px;
-  width: 300px;
-  max-height: calc(100vh - 84px);
-  overflow: auto;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    pointer-events: auto;
+    position: absolute;
+    right: 12px;
+    top: 82px;
+    width: 300px;
+    max-height: calc(100vh - 84px);
+    overflow: auto;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar-title {
-  font-weight: 600;
-  margin-bottom: 8px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 .sidebar-empty {
-  opacity: 0.8;
+    opacity: 0.8;
 }
 
 .custom-mapbar {
-  pointer-events: auto;
-  position: absolute;
-  display: flex;
-  gap: 12px;
-  top: 84px;
-  left: 12px;
-  right: 12px;
-  /* background: rgba(15, 23, 42, 0.7); */
+    pointer-events: auto;
+    position: absolute;
+    display: flex;
+    gap: 12px;
+    top: 84px;
+    left: 12px;
+    right: 12px;
+    /* background: rgba(15, 23, 42, 0.7); */
 }
 
 .mapboxgl-popup-content {
-  background: rgba(15, 23, 42, 0.7) !important;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
-  border-radius: 8px !important;
-  padding: 18px 22px !important;
-  font-size: 14px;
-  color: var(--fg) !important;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+    background: rgba(15, 23, 42, 0.7) !important;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+    border-radius: 8px !important;
+    padding: 18px 22px !important;
+    font-size: 14px;
+    color: var(--fg) !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 .mapboxgl-popup-close-button {
-  font-size: 24px !important;
-  color: var(--fg) !important;
+    font-size: 24px !important;
+    color: var(--fg) !important;
 }
 
 .styled-button {
-  background: var(--map-accent);
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-right: 8px; /* Espacement entre les boutons */
+    background: var(--map-accent);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 8px; /* Espacement entre les boutons */
+}
+
+/* PisteDrawer styles */
+.piste-drawer {
+    pointer-events: auto;
+    position: absolute;
+    top: 84px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(6px);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 350px;
+}
+
+.piste-drawer h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--fg);
+    font-weight: 600;
+}
+
+.piste-drawer .info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--fg);
+}
+
+.piste-drawer input,
+.piste-drawer select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--fg);
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.piste-drawer input::placeholder {
+    color: rgba(226, 232, 240, 0.5);
+}
+
+.piste-drawer input:focus,
+.piste-drawer select:focus {
+    outline: none;
+    border-color: var(--map-accent);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.piste-drawer .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.piste-drawer button {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--map-accent);
+    color: #fff;
+    transition: all 0.2s ease;
+}
+
+.piste-drawer button:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.piste-drawer button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.piste-drawer .error {
+    color: #ff6b6b;
+    padding: 10px;
+    background: rgba(255, 59, 59, 0.15);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    border: 1px solid rgba(255, 59, 59, 0.3);
+}
+
+.piste-drawer .drawing-controls {
+    display: flex;
+    flex-direction: column;
 }
