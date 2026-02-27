@@ -2,6 +2,7 @@ django
 djangorestframework
 psycopg2-binary
 django-cors-headers
+requests
 
 # Bibliothèques pour traiter les données LiDAR
 laspy
@@ -15,3 +16,4 @@ scipy
 #- `pdal` : Pipeline de traitement de nuages de points (classification, filtrage)
 #- `rasterio` : Créer des rasters (GeoTIFF) à partir des nuages de points
 #- `numpy` & `scipy` : Interpolation et calculs mathématiques
+#- `requests` : Appels HTTP vers Open-Meteo API (données neige temps réel)

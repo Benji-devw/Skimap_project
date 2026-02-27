@@ -25,6 +25,7 @@ from stations.views import (
     StationViewSet,
     snow_at_point,
     snow_coverage_geojson,
+    snow_realtime,
 )
 
 
@@ -43,4 +44,5 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/snow-coverage/", snow_coverage_geojson, name="snow-coverage"),
     path("api/snow-at-point/", snow_at_point, name="snow-at-point"),
+    path("api/snow-realtime/", snow_realtime, name="snow-realtime"),
 ]

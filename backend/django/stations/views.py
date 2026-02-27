@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from .models import Piste, SnowMeasure, Station
 from .serializers import PisteSerializer, SnowMeasureSerializer, StationSerializer
+from .services.open_meteo import fetch_snow_for_station
 
 # Create your views here.
 
@@ -140,6 +141,74 @@ def snow_coverage_geojson(request):
             {"error": "Failed to load snow coverage data", "message": str(e)},
             status=500,
         )
+
+
+@api_view(["GET"])
+def snow_realtime(request):
+    """
+    Retourne les données de neige en temps réel depuis Open-Meteo pour une station.
+
+    GET /api/snow-realtime/?station_id=1
+
+    Query params:
+        station_id: ID de la station
+
+    Returns:
+        {
+            "station_id": 1,
+            "station_nom": "Coste Belle",
+            "fetched_at": "2024-01-15T14:00:00Z",
+            "snow_depth_cm": 68.0,
+            "snowfall_cm": 2.5,
+            "temperature_c": -3.1,
+            "precipitation_mm": 1.2,
+            "source": "open-meteo"
+        }
+    """
+    station_id = request.GET.get("station_id")
+
+    if not station_id:
+        return JsonResponse(
+            {"error": "Missing parameter", "message": "station_id is required"},
+            status=400,
+        )
+
+    try:
+        station = Station.objects.get(pk=int(station_id))
+    except (Station.DoesNotExist, ValueError):
+        return JsonResponse(
+            {
+                "error": "Station not found",
+                "message": f"No station with id={station_id}",
+            },
+            status=404,
+        )
+
+    data = fetch_snow_for_station(station)
+
+    if data is None:
+        return JsonResponse(
+            {
+                "error": "Open-Meteo unavailable",
+                "message": "Could not fetch snow data from Open-Meteo",
+            },
+            status=503,
+        )
+
+    return JsonResponse(
+        {
+            "station_id": station.id,
+            "station_nom": station.nom,
+            "latitude": data.latitude,
+            "longitude": data.longitude,
+            "fetched_at": data.fetched_at.isoformat(),
+            "snow_depth_cm": data.snow_depth_cm,
+            "snowfall_cm": data.snowfall_cm,
+            "temperature_c": data.temperature_c,
+            "precipitation_mm": data.precipitation_mm,
+            "source": "open-meteo",
+        }
+    )
 
 
 @api_view(["GET"])

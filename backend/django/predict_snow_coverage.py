@@ -4,9 +4,18 @@ Script pour prédire l'accumulation de neige en combinant :
 - Modèle Numérique de Terrain (MNT) - altitude
 - Pente (slope) - où la neige glisse ou s'accumule
 - Exposition (aspect) - ensoleillement et fonte
-- Mesures de neige réelles (SnowMeasure) - calibration
+- Open-Meteo API - hauteur de neige réelle en temps réel (calibration automatique)
 
 Usage:
+    # Avec récupération automatique depuis Open-Meteo (recommandé)
+    python predict_snow_coverage.py \
+        --dtm media/lidar/dtm_coste_belle.tif \
+        --slope media/lidar/dtm_coste_belle_slope.tif \
+        --aspect media/lidar/dtm_coste_belle_aspect.tif \
+        --output media/lidar/snow_prediction.tif \
+        --lat 44.602 --lon 6.220
+
+    # Avec une valeur manuelle (fallback)
     python predict_snow_coverage.py \
         --dtm media/lidar/dtm_coste_belle.tif \
         --slope media/lidar/dtm_coste_belle_slope.tif \
@@ -22,10 +31,92 @@ Le modèle d'accumulation prend en compte :
 """
 
 import argparse
+import json
 import sys
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 import numpy as np
+
+# ─── Récupération Open-Meteo ─────────────────────────────────────────────────
+
+
+def fetch_base_snow_from_open_meteo(
+    lat: float, lon: float, verbose: bool = True
+) -> float | None:
+    """
+    Récupère la hauteur de neige actuelle depuis Open-Meteo pour une coordonnée.
+    Open-Meteo est gratuit et ne nécessite pas de clé API.
+
+    Args:
+        lat: Latitude WGS84
+        lon: Longitude WGS84
+        verbose: Afficher les logs
+
+    Returns:
+        Hauteur de neige en cm, ou None si indisponible
+    """
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": "snow_depth",
+        "timezone": "UTC",
+        "forecast_days": 1,
+    }
+    url = f"https://api.open-meteo.com/v1/forecast?{urllib.parse.urlencode(params)}"
+
+    if verbose:
+        print(f"\n🌐 Récupération Open-Meteo...")
+        print(f"   URL : {url}")
+
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:
+        print(f"⚠️  Impossible de joindre Open-Meteo : {exc}")
+        return None
+
+    hourly = data.get("hourly", {})
+    snow_depths = hourly.get("snow_depth", [])
+    times = hourly.get("time", [])
+
+    if not snow_depths:
+        if verbose:
+            print("⚠️  Open-Meteo n'a pas retourné de donnée snow_depth")
+        return None
+
+    # Trouver l'index de l'heure courante UTC
+    from datetime import datetime, timezone
+
+    now_str = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:00")
+    current_idx = len(times) - 1
+    for i, t in enumerate(times):
+        if t == now_str:
+            current_idx = i
+            break
+
+    # Chercher en arrière le dernier index non-None
+    snow_m = None
+    for i in range(current_idx, -1, -1):
+        if snow_depths[i] is not None:
+            snow_m = snow_depths[i]
+            break
+
+    if snow_m is None:
+        if verbose:
+            print("⚠️  Toutes les valeurs snow_depth sont None")
+        return None
+
+    # Open-Meteo retourne snow_depth en mètres → convertir en cm
+    snow_cm = round(snow_m * 100, 1)
+
+    if verbose:
+        matched_time = times[current_idx] if times else "?"
+        print(f"   ✅ Heure de référence : {matched_time} UTC")
+        print(f"   ❄️  Hauteur de neige   : {snow_m} m → {snow_cm} cm")
+
+    return snow_cm
 
 
 def load_raster(filepath, verbose=True):
@@ -172,7 +263,9 @@ def calculate_wind_exposure_factor(elevation, slope):
         Facteur multiplicateur (0.6 - 1.0)
     """
     # Normaliser l'élévation entre 0 et 1
-    elev_normalized = (elevation - np.nanmin(elevation)) / (np.nanmax(elevation) - np.nanmin(elevation))
+    elev_normalized = (elevation - np.nanmin(elevation)) / (
+        np.nanmax(elevation) - np.nanmin(elevation)
+    )
 
     # Les crêtes sont des zones hautes avec faible pente
     # Identifier les zones de crête : altitude > 75e percentile ET pente < 20°
@@ -191,12 +284,7 @@ def calculate_wind_exposure_factor(elevation, slope):
 
 
 def predict_snow_accumulation(
-    elevation,
-    slope,
-    aspect,
-    base_snow_cm=75,
-    base_elevation=1500,
-    verbose=True
+    elevation, slope, aspect, base_snow_cm=75, base_elevation=1500, verbose=True
 ):
     """
     Prédit l'accumulation de neige en combinant tous les facteurs
@@ -226,10 +314,18 @@ def predict_snow_accumulation(
 
     if verbose:
         print(f"\n📊 Facteurs calculés:")
-        print(f"   Altitude: {np.nanmean(altitude_factor):.3f} (min={np.nanmin(altitude_factor):.3f}, max={np.nanmax(altitude_factor):.3f})")
-        print(f"   Pente:    {np.nanmean(slope_factor):.3f} (min={np.nanmin(slope_factor):.3f}, max={np.nanmax(slope_factor):.3f})")
-        print(f"   Exposition: {np.nanmean(aspect_factor):.3f} (min={np.nanmin(aspect_factor):.3f}, max={np.nanmax(aspect_factor):.3f})")
-        print(f"   Vent:     {np.nanmean(wind_factor):.3f} (min={np.nanmin(wind_factor):.3f}, max={np.nanmax(wind_factor):.3f})")
+        print(
+            f"   Altitude: {np.nanmean(altitude_factor):.3f} (min={np.nanmin(altitude_factor):.3f}, max={np.nanmax(altitude_factor):.3f})"
+        )
+        print(
+            f"   Pente:    {np.nanmean(slope_factor):.3f} (min={np.nanmin(slope_factor):.3f}, max={np.nanmax(slope_factor):.3f})"
+        )
+        print(
+            f"   Exposition: {np.nanmean(aspect_factor):.3f} (min={np.nanmin(aspect_factor):.3f}, max={np.nanmax(aspect_factor):.3f})"
+        )
+        print(
+            f"   Vent:     {np.nanmean(wind_factor):.3f} (min={np.nanmin(wind_factor):.3f}, max={np.nanmax(wind_factor):.3f})"
+        )
 
     # Combiner tous les facteurs
     combined_factor = altitude_factor * slope_factor * aspect_factor * wind_factor
@@ -250,13 +346,7 @@ def predict_snow_accumulation(
     return predicted_snow
 
 
-def save_snow_prediction(
-    snow_grid,
-    transform,
-    crs,
-    output_path,
-    verbose=True
-):
+def save_snow_prediction(snow_grid, transform, crs, output_path, verbose=True):
     """
     Sauvegarde la prédiction de neige en GeoTIFF
 
@@ -285,21 +375,21 @@ def save_snow_prediction(
     # Sauvegarder le GeoTIFF
     with rasterio.open(
         output_path,
-        'w',
-        driver='GTiff',
+        "w",
+        driver="GTiff",
         height=snow_grid.shape[0],
         width=snow_grid.shape[1],
         count=1,
         dtype=snow_grid.dtype,
         crs=crs,
         transform=transform,
-        compress='lzw',
-        nodata=np.nan
+        compress="lzw",
+        nodata=np.nan,
     ) as dst:
         dst.write(snow_grid, 1)
 
     if verbose:
-        file_size = Path(output_path).stat().st_size / (1024 ** 2)
+        file_size = Path(output_path).stat().st_size / (1024**2)
         print(f"✅ Prédiction sauvegardée!")
         print(f"📏 Taille du fichier: {file_size:.2f} Mo")
 
@@ -333,12 +423,12 @@ def create_color_classification(snow_grid, verbose=True):
     classified[snow_grid >= 120] = 5
 
     color_map = {
-        0: {'name': 'Pas de neige', 'color': '#FF0000', 'range': '0-10 cm'},
-        1: {'name': 'Très peu', 'color': '#FF6600', 'range': '10-30 cm'},
-        2: {'name': 'Peu', 'color': '#FFCC00', 'range': '30-50 cm'},
-        3: {'name': 'Moyen', 'color': '#66FF66', 'range': '50-80 cm'},
-        4: {'name': 'Bon', 'color': '#00CCFF', 'range': '80-120 cm'},
-        5: {'name': 'Excellent', 'color': '#FFFFFF', 'range': '>120 cm'},
+        0: {"name": "Pas de neige", "color": "#FF0000", "range": "0-10 cm"},
+        1: {"name": "Très peu", "color": "#FF6600", "range": "10-30 cm"},
+        2: {"name": "Peu", "color": "#FFCC00", "range": "30-50 cm"},
+        3: {"name": "Moyen", "color": "#66FF66", "range": "50-80 cm"},
+        4: {"name": "Bon", "color": "#00CCFF", "range": "80-120 cm"},
+        5: {"name": "Excellent", "color": "#FFFFFF", "range": ">120 cm"},
     }
 
     if verbose:
@@ -347,7 +437,9 @@ def create_color_classification(snow_grid, verbose=True):
         for cls, info in color_map.items():
             count = np.sum(classified == cls)
             percentage = (count / classified.size) * 100
-            print(f"   {cls} - {info['name']:12s} ({info['range']:12s}): {count:8,} pixels ({percentage:5.1f}%)")
+            print(
+                f"   {cls} - {info['name']:12s} ({info['range']:12s}): {count:8,} pixels ({percentage:5.1f}%)"
+            )
 
     return classified, color_map
 
@@ -356,54 +448,59 @@ def main():
     """Fonction principale"""
 
     parser = argparse.ArgumentParser(
-        description='Prédire l\'accumulation de neige à partir du MNT, pente et exposition'
+        description="Prédire l'accumulation de neige à partir du MNT, pente et exposition"
     )
     parser.add_argument(
-        '--dtm',
+        "--dtm",
         type=str,
         required=True,
-        help='Chemin vers le fichier MNT (DTM) GeoTIFF'
+        help="Chemin vers le fichier MNT (DTM) GeoTIFF",
     )
     parser.add_argument(
-        '--slope',
+        "--slope",
         type=str,
         required=True,
-        help='Chemin vers le fichier de pente GeoTIFF'
+        help="Chemin vers le fichier de pente GeoTIFF",
     )
     parser.add_argument(
-        '--aspect',
+        "--aspect",
         type=str,
         required=True,
-        help='Chemin vers le fichier d\'exposition GeoTIFF'
+        help="Chemin vers le fichier d'exposition GeoTIFF",
     )
     parser.add_argument(
-        '--output',
-        type=str,
-        required=True,
-        help='Chemin du fichier de sortie GeoTIFF'
+        "--output", type=str, required=True, help="Chemin du fichier de sortie GeoTIFF"
     )
     parser.add_argument(
-        '--base-snow',
+        "--base-snow",
         type=float,
-        default=75.0,
-        help='Hauteur de neige de base en cm (défaut: 75)'
+        default=None,
+        help="Hauteur de neige de base en cm (si non fourni, récupérée depuis Open-Meteo via --lat/--lon)",
     )
     parser.add_argument(
-        '--base-elevation',
+        "--lat",
+        type=float,
+        default=None,
+        help="Latitude WGS84 de la station (pour récupérer la neige depuis Open-Meteo)",
+    )
+    parser.add_argument(
+        "--lon",
+        type=float,
+        default=None,
+        help="Longitude WGS84 de la station (pour récupérer la neige depuis Open-Meteo)",
+    )
+    parser.add_argument(
+        "--base-elevation",
         type=float,
         default=1500.0,
-        help='Altitude de référence en mètres (défaut: 1500)'
+        help="Altitude de référence en mètres (défaut: 1500)",
     )
     parser.add_argument(
-        '--save-classified',
-        action='store_true',
-        help='Sauvegarder aussi la version classifiée par couleur'
+        "--save-classified",
+        action="store_true",
+        help="Sauvegarder aussi la version classifiée par couleur",
     )
-    parser.add_argument(
-        '--quiet',
-        action='store_true',
-        help='Mode silencieux'
-    )
+    parser.add_argument("--quiet", action="store_true", help="Mode silencieux")
 
     args = parser.parse_args()
     verbose = not args.quiet
@@ -412,6 +509,34 @@ def main():
         print(f"\n{'#' * 60}")
         print(f"#  PRÉDICTION D'ACCUMULATION DE NEIGE")
         print(f"{'#' * 60}")
+
+    # ── Résolution du base_snow ──────────────────────────────────────────────
+    base_snow_cm = args.base_snow
+
+    if base_snow_cm is None:
+        # Essayer Open-Meteo si lat/lon fournis
+        if args.lat is not None and args.lon is not None:
+            if verbose:
+                print(f"\n📡 SOURCE : Open-Meteo (lat={args.lat}, lon={args.lon})")
+            base_snow_cm = fetch_base_snow_from_open_meteo(
+                args.lat, args.lon, verbose=verbose
+            )
+            if base_snow_cm is None:
+                print("⚠️  Open-Meteo indisponible, fallback sur 75 cm")
+                base_snow_cm = 75.0
+        else:
+            print(
+                "⚠️  Ni --base-snow ni --lat/--lon fournis. "
+                "Utilisation de la valeur par défaut : 75 cm\n"
+                "    → Fournissez --lat et --lon pour des données réelles."
+            )
+            base_snow_cm = 75.0
+    else:
+        if verbose:
+            print(f"\n📋 SOURCE : valeur manuelle (--base-snow {base_snow_cm} cm)")
+
+    if verbose:
+        print(f"\n❄️  Hauteur de neige de référence : {base_snow_cm} cm")
 
     # Charger les rasters
     if verbose:
@@ -432,31 +557,27 @@ def main():
         elevation,
         slope,
         aspect,
-        base_snow_cm=args.base_snow,
+        base_snow_cm=base_snow_cm,
         base_elevation=args.base_elevation,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # Sauvegarder le résultat
-    save_snow_prediction(
-        predicted_snow,
-        transform,
-        crs,
-        args.output,
-        verbose=verbose
-    )
+    save_snow_prediction(predicted_snow, transform, crs, args.output, verbose=verbose)
 
     # Créer et sauvegarder la version classifiée si demandé
     if args.save_classified:
-        classified, color_map = create_color_classification(predicted_snow, verbose=verbose)
+        classified, color_map = create_color_classification(
+            predicted_snow, verbose=verbose
+        )
 
-        classified_output = args.output.replace('.tif', '_classified.tif')
+        classified_output = args.output.replace(".tif", "_classified.tif")
         save_snow_prediction(
             classified.astype(np.float32),
             transform,
             crs,
             classified_output,
-            verbose=verbose
+            verbose=verbose,
         )
 
         if verbose:
@@ -473,5 +594,5 @@ def main():
         print(f"   4. Afficher la couche sur votre carte web\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

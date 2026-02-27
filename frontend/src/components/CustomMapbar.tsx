@@ -8,6 +8,7 @@ type Props = {
   setIsSatellite: (v: boolean) => void;
   showSnowLayer: boolean;
   setShowSnowLayer: (v: boolean) => void;
+  hasSnowLayer: boolean;
   selectedStation: Station | null;
   onResetBearing: () => void;
 };
@@ -19,10 +20,19 @@ export default function CustomMapbar({
   setIsSatellite,
   showSnowLayer,
   setShowSnowLayer,
+  hasSnowLayer,
   selectedStation,
   onResetBearing,
 }: Props) {
-  const isSnowButtonDisabled = !selectedStation;
+  const isSnowButtonDisabled = !selectedStation || !hasSnowLayer;
+
+  const snowButtonTooltip = !selectedStation
+    ? "Sélectionnez une station pour voir la couche de neige"
+    : !hasSnowLayer
+      ? `Données LIDAR non disponibles pour ${selectedStation.nom} (disponible uniquement pour Ancelle)`
+      : showSnowLayer
+        ? "Désactiver la couche de neige"
+        : "Activer la couche de neige LIDAR";
   return (
     <div className="custom-mapbar">
       <button className="styled-button" onClick={() => setIs3D(!is3D)}>
@@ -52,13 +62,7 @@ export default function CustomMapbar({
             opacity: isSnowButtonDisabled ? 0.5 : 1,
             cursor: isSnowButtonDisabled ? "not-allowed" : "pointer",
           }}
-          title={
-            isSnowButtonDisabled
-              ? "Sélectionnez une station (Isola 2000) pour voir la couche de neige"
-              : showSnowLayer
-                ? "Désactiver la couche de neige"
-                : "Activer la couche de neige"
-          }
+          title={snowButtonTooltip}
         >
           {showSnowLayer ? "Neige: ON" : "Neige: OFF"}
           <span className="inner-button">

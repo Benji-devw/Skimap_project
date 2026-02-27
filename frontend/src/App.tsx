@@ -1,4 +1,7 @@
 import { useRef, useState } from "react";
+
+// ID de la station qui possède un fichier LAZ → carte de neige disponible
+const LIDAR_STATION_ID = 3; // Ancelle
 import "./App.css";
 import type { Station, Piste, SnowMeasure } from "./types";
 import MapView, { type MapViewHandle } from "./components/MapView";
@@ -17,6 +20,15 @@ export default function App() {
   const [isSatellite, setIsSatellite] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [showSnowLayer, setShowSnowLayer] = useState(false);
+  const hasSnowLayer = selectedStation?.id === LIDAR_STATION_ID;
+
+  const handleSetSelectedStation = (station: Station | null) => {
+    // Si on change de station et que la nouvelle n'a pas de LAZ, on cache la couche neige
+    if (station?.id !== LIDAR_STATION_ID) {
+      setShowSnowLayer(false);
+    }
+    setSelectedStation(station);
+  };
   const [drawCoordinates, setDrawCoordinates] = useState<[number, number][]>(
     [],
   );
@@ -43,7 +55,7 @@ export default function App() {
         snowMeasures={snowMeasures}
         setSnowMeasures={setSnowMeasures}
         selectedStation={selectedStation}
-        setSelectedStation={setSelectedStation}
+        setSelectedStation={handleSetSelectedStation}
         is3D={is3D}
         isSatellite={isSatellite}
         targetPisteId={targetPisteId}
@@ -58,9 +70,8 @@ export default function App() {
           selectedStation={selectedStation}
           clearPistes={() => {
             setPistes([]);
-            setSelectedStation(null);
+            handleSetSelectedStation(null);
             setTargetPisteId(null);
-            setShowSnowLayer(false);
           }}
         />
         <CustomMapbar
@@ -69,7 +80,12 @@ export default function App() {
           isSatellite={isSatellite}
           setIsSatellite={setIsSatellite}
           showSnowLayer={showSnowLayer}
-          setShowSnowLayer={setShowSnowLayer}
+          setShowSnowLayer={(v) => {
+            // Désactiver la couche si on change de station sans LAZ
+            if (!hasSnowLayer) return;
+            setShowSnowLayer(v);
+          }}
+          hasSnowLayer={hasSnowLayer}
           selectedStation={selectedStation}
           onResetBearing={() => mapViewRef.current?.resetBearing()}
         />

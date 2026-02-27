@@ -1,5 +1,6 @@
 import type { Station, Piste } from "../types";
 import PisteList from "./PisteList";
+import StationWeather from "./StationWeather";
 
 type Props = {
   pistes: Piste[];
@@ -19,6 +20,7 @@ export default function Sidebar({
       <div className="sidebar-title">
         🏘️ {selectedStation ? `– ${selectedStation.nom}` : ""}
       </div>
+      {selectedStation && <StationWeather station={selectedStation} />}
       <PisteList
         pistes={pistes}
         setTargetPisteId={setTargetPisteId}

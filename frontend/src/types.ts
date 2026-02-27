@@ -38,3 +38,16 @@ export type SnowMeasure = {
   station_nom: string;
   station: Station;
 };
+
+export type WeatherData = {
+  station_id: number;
+  station_nom: string;
+  latitude: number;
+  longitude: number;
+  fetched_at: string;
+  snow_depth_cm: number | null;
+  snowfall_cm: number | null;
+  temperature_c: number | null;
+  precipitation_mm: number | null;
+  source: "open-meteo";
+};
