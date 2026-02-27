@@ -103,7 +103,16 @@ python create_dtm.py \\
   --calculate-slope \\
   --calculate-aspect
 
-# Prédire la neige
+# Prédire la neige (avec données réelles Open-Meteo)
+python predict_snow_coverage.py \\
+  --dtm media/lidar/dtm.tif \\
+  --slope media/lidar/dtm_slope.tif \\
+  --aspect media/lidar/dtm_aspect.tif \\
+  --output media/lidar/snow_prediction.tif \\
+  --lat 44.602 --lon 6.220 \\
+  --save-classified
+
+# Ou avec une valeur manuelle (sans connexion)
 python predict_snow_coverage.py \\
   --dtm media/lidar/dtm.tif \\
   --slope media/lidar/dtm_slope.tif \\

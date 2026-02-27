@@ -7,10 +7,19 @@ from django.http import JsonResponse
 from django.utils.dateparse import parse_datetime
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from .models import Piste, SnowMeasure, Station
+from .models import LidarUpload, Piste, SnowMeasure, Station
 from .serializers import PisteSerializer, SnowMeasureSerializer, StationSerializer
+from .services.lidar_pipeline import (
+    cancel_pipeline,
+    delete_laz_upload,
+    dtm_ready,
+    run_dtm_pipeline_async,
+    run_snow_pipeline_async,
+    snow_geojson_path,
+)
 from .services.open_meteo import fetch_snow_for_station
 
 # Create your views here.
@@ -108,24 +117,45 @@ class PisteViewSet(viewsets.ModelViewSet):
 @api_view(["GET"])
 def snow_coverage_geojson(request):
     """
-    Endpoint pour servir les données de couverture neigeuse au format GeoJSON
-    Basé sur l'analyse LIDAR et le modèle d'accumulation
+    Endpoint pour servir les données de couverture neigeuse au format GeoJSON.
 
-    GET /api/snow-coverage/
+    GET /api/snow-coverage/?station_id=3
+
+    Query params:
+        station_id (optionnel) : ID de la station. Si absent, retourne le fichier
+                                 générique (snow_contours.geojson) pour compatibilité.
 
     Returns:
         GeoJSON FeatureCollection avec polygones colorés par hauteur de neige
     """
-    # Chemin vers le fichier GeoJSON généré
-    geojson_path = (
-        Path(__file__).parent.parent / "media" / "lidar" / "snow_contours.geojson"
-    )
+    from .services.lidar_pipeline import snow_geojson_path
+
+    station_id = request.GET.get("station_id")
+
+    if station_id:
+        # GeoJSON spécifique à la station (généré par le pipeline upload)
+        try:
+            station_id_int = int(station_id)
+        except ValueError:
+            return JsonResponse(
+                {
+                    "error": "Invalid parameter",
+                    "message": "station_id doit être un entier",
+                },
+                status=400,
+            )
+        geojson_path = snow_geojson_path(station_id_int)
+    else:
+        # Fallback : fichier générique (rétrocompatibilité)
+        geojson_path = (
+            Path(__file__).parent.parent / "media" / "lidar" / "snow_contours.geojson"
+        )
 
     if not geojson_path.exists():
         return JsonResponse(
             {
                 "error": "Snow coverage data not available",
-                "message": "GeoJSON file not found. Run the LIDAR processing pipeline first.",
+                "message": "GeoJSON non disponible. Uploadez un fichier LAZ pour cette station.",
             },
             status=404,
         )
@@ -207,6 +237,461 @@ def snow_realtime(request):
             "temperature_c": data.temperature_c,
             "precipitation_mm": data.precipitation_mm,
             "source": "open-meteo",
+        }
+    )
+
+
+@api_view(["POST"])
+def lidar_upload(request):
+    """
+    Upload d'un fichier LAZ et lancement du pipeline de traitement en arrière-plan.
+
+    POST /api/lidar/upload/
+    Content-Type: multipart/form-data
+
+    Body:
+        station_id : int  — ID de la station associée
+        laz_file   : file — Fichier .laz ou .copc.laz
+
+    Returns:
+        { "upload_id": 42, "status": "pending", "message": "..." }
+    """
+    parser_classes = [MultiPartParser]
+
+    station_id = request.data.get("station_id")
+    laz_file = request.FILES.get("laz_file")
+
+    # Validations
+    if not station_id:
+        return JsonResponse(
+            {"error": "Missing parameter", "message": "station_id est requis"},
+            status=400,
+        )
+    if not laz_file:
+        return JsonResponse(
+            {"error": "Missing file", "message": "laz_file est requis"},
+            status=400,
+        )
+
+    ext = Path(laz_file.name).suffix.lower()
+    if ext not in (".laz", ".las"):
+        return JsonResponse(
+            {
+                "error": "Invalid file",
+                "message": f"Format non supporté : {ext}. Utilisez .laz ou .las",
+            },
+            status=400,
+        )
+
+    try:
+        station = Station.objects.get(pk=int(station_id))
+    except (Station.DoesNotExist, ValueError):
+        return JsonResponse(
+            {
+                "error": "Station not found",
+                "message": f"Station {station_id} introuvable",
+            },
+            status=404,
+        )
+
+    # Sauvegarder le nouveau LAZ (sans écraser les précédents)
+    upload = LidarUpload.objects.create(
+        station=station,
+        laz_file=laz_file,
+        original_filename=laz_file.name,
+    )
+
+    # Compter le total de LAZ pour cette station
+    laz_count = LidarUpload.objects.filter(station=station).count()
+
+    # Lancer le pipeline DTM (qui fusionnera tous les LAZ puis lancera le pipeline neige)
+    # Si un pipeline tourne déjà, on refuse l'upload pour éviter les conflits
+    from .services.lidar_pipeline import dtm_pipeline_is_running
+
+    if dtm_pipeline_is_running(station.id):
+        # Supprimer le fichier qu'on vient de sauvegarder
+        upload.laz_file.delete(save=False)
+        upload.delete()
+        return JsonResponse(
+            {
+                "error": "Pipeline already running",
+                "message": (
+                    "Un traitement DTM est déjà en cours pour cette station. "
+                    "Attendez qu'il se termine ou annulez-le avant d'uploader un nouveau fichier."
+                ),
+            },
+            status=409,
+        )
+
+    run_dtm_pipeline_async(station.id)
+
+    return JsonResponse(
+        {
+            "upload_id": upload.id,
+            "station_id": station.id,
+            "station_nom": station.nom,
+            "laz_count": laz_count,
+            "message": (
+                f"Fichier reçu pour {station.nom} "
+                f"({laz_count} LAZ au total). "
+                f"Pipeline DTM démarré en arrière-plan."
+            ),
+        },
+        status=202,
+    )
+
+
+@api_view(["GET"])
+def lidar_status(request):
+    """
+    Retourne l'état du pipeline LIDAR pour une station.
+
+    GET /api/lidar/status/?station_id=3
+
+    Returns:
+        {
+            "station_id": 3,
+            "station_nom": "Ancelle",
+            "status": "running",          // pending | running | done | error
+            "progress_step": "Génération DTM…",
+            "error_message": "",
+            "uploaded_at": "2024-01-15T14:00:00Z",
+            "processed_at": null,
+            "snow_layer_ready": false      // true quand le GeoJSON est disponible
+        }
+    """
+    station_id = request.GET.get("station_id")
+
+    if not station_id:
+        return JsonResponse(
+            {"error": "Missing parameter", "message": "station_id est requis"},
+            status=400,
+        )
+
+    try:
+        station = Station.objects.get(pk=int(station_id))
+    except (Station.DoesNotExist, ValueError):
+        return JsonResponse(
+            {
+                "error": "Station not found",
+                "message": f"Station {station_id} introuvable",
+            },
+            status=404,
+        )
+
+    from .models import LidarDTM, LidarSnow
+
+    # Récupérer les statuts DTM et neige séparément
+    try:
+        dtm_record = LidarDTM.objects.get(station=station)
+        dtm_status = dtm_record.status
+        dtm_step = dtm_record.progress_step
+        dtm_error = dtm_record.error_message
+        dtm_laz_count = dtm_record.laz_count
+        dtm_completed_at = (
+            dtm_record.completed_at.isoformat() if dtm_record.completed_at else None
+        )
+    except LidarDTM.DoesNotExist:
+        dtm_status = "none"
+        dtm_step = ""
+        dtm_error = ""
+        dtm_laz_count = 0
+        dtm_completed_at = None
+
+    try:
+        snow_record = LidarSnow.objects.get(station=station)
+        snow_status = snow_record.status
+        snow_step = snow_record.progress_step
+        snow_error = snow_record.error_message
+        snow_base_cm = snow_record.base_snow_cm
+        snow_completed_at = (
+            snow_record.completed_at.isoformat() if snow_record.completed_at else None
+        )
+    except LidarSnow.DoesNotExist:
+        snow_status = "none"
+        snow_step = ""
+        snow_error = ""
+        snow_base_cm = None
+        snow_completed_at = None
+
+    laz_count = LidarUpload.objects.filter(station=station).count()
+    geojson_ready = snow_geojson_path(station.id).exists()
+
+    # Le statut global est le plus avancé des deux pipelines
+    # Si le DTM tourne, c'est le statut principal affiché
+    if dtm_status in ("pending", "running"):
+        global_status = dtm_status
+        global_step = dtm_step
+    elif snow_status in ("pending", "running"):
+        global_status = snow_status
+        global_step = snow_step
+    elif snow_status == "done" and geojson_ready:
+        global_status = "done"
+        global_step = snow_step
+    elif dtm_status == "error":
+        global_status = "error"
+        global_step = dtm_error
+    elif snow_status == "error":
+        global_status = "error"
+        global_step = snow_error
+    else:
+        global_status = "none"
+        global_step = ""
+
+    return JsonResponse(
+        {
+            "station_id": station.id,
+            "station_nom": station.nom,
+            "laz_count": laz_count,
+            # Statut global (pour le frontend)
+            "status": global_status,
+            "progress_step": global_step,
+            # Détail DTM
+            "dtm": {
+                "status": dtm_status,
+                "progress_step": dtm_step,
+                "error_message": dtm_error,
+                "laz_count": dtm_laz_count,
+                "completed_at": dtm_completed_at,
+                "ready": dtm_ready(station.id),
+            },
+            # Détail neige
+            "snow": {
+                "status": snow_status,
+                "progress_step": snow_step,
+                "error_message": snow_error,
+                "base_snow_cm": snow_base_cm,
+                "completed_at": snow_completed_at,
+            },
+            "snow_layer_ready": geojson_ready,
+        }
+    )
+
+
+@api_view(["POST"])
+def lidar_cancel(request):
+    """
+    Annule le pipeline DTM ou neige en cours pour une station.
+
+    POST /api/lidar/cancel/
+    Body: { "station_id": 3 }
+
+    Returns:
+        { "station_id": 3, "cancelled": true, "message": "..." }
+    """
+    station_id = request.data.get("station_id")
+
+    if not station_id:
+        return JsonResponse(
+            {"error": "Missing parameter", "message": "station_id est requis"},
+            status=400,
+        )
+
+    try:
+        station = Station.objects.get(pk=int(station_id))
+    except (Station.DoesNotExist, ValueError):
+        return JsonResponse(
+            {
+                "error": "Station not found",
+                "message": f"Station {station_id} introuvable",
+            },
+            status=404,
+        )
+
+    was_running = cancel_pipeline(station.id)
+
+    return JsonResponse(
+        {
+            "station_id": station.id,
+            "station_nom": station.nom,
+            "cancelled": was_running,
+            "message": (
+                f"Pipeline annulé pour {station.nom}."
+                if was_running
+                else f"Aucun pipeline en cours pour {station.nom}."
+            ),
+        }
+    )
+
+
+@api_view(["POST"])
+def snow_refresh(request):
+    """
+    Déclenche manuellement le pipeline neige pour une station.
+    Utilise le DTM existant — ne retraite pas les LAZ.
+
+    POST /api/snow/refresh/
+    Body: { "station_id": 3 }
+    """
+    station_id = request.data.get("station_id")
+
+    if not station_id:
+        return JsonResponse(
+            {"error": "Missing parameter", "message": "station_id est requis"},
+            status=400,
+        )
+
+    try:
+        station = Station.objects.get(pk=int(station_id))
+    except (Station.DoesNotExist, ValueError):
+        return JsonResponse(
+            {
+                "error": "Station not found",
+                "message": f"Station {station_id} introuvable",
+            },
+            status=404,
+        )
+
+    if not dtm_ready(station.id):
+        return JsonResponse(
+            {
+                "error": "DTM not available",
+                "message": "Uploadez d'abord un fichier LAZ pour générer le DTM.",
+            },
+            status=409,
+        )
+
+    run_snow_pipeline_async(station.id)
+
+    return JsonResponse(
+        {
+            "station_id": station.id,
+            "station_nom": station.nom,
+            "message": f"Pipeline neige démarré pour {station.nom}.",
+        },
+        status=202,
+    )
+
+
+@api_view(["GET"])
+def lidar_uploads_list(request):
+    """
+    Liste tous les fichiers LAZ uploadés pour une station.
+
+    GET /api/lidar/uploads/?station_id=3
+
+    Returns:
+        {
+            "station_id": 3,
+            "station_nom": "Ancelle",
+            "uploads": [
+                {
+                    "id": 12,
+                    "original_filename": "zone_nord.laz",
+                    "uploaded_at": "2024-01-15T14:00:00Z",
+                    "file_size_mb": 45.2,
+                    "file_exists": true
+                },
+                ...
+            ]
+        }
+    """
+    station_id = request.GET.get("station_id")
+
+    if not station_id:
+        return JsonResponse(
+            {"error": "Missing parameter", "message": "station_id est requis"},
+            status=400,
+        )
+
+    try:
+        station = Station.objects.get(pk=int(station_id))
+    except (Station.DoesNotExist, ValueError):
+        return JsonResponse(
+            {
+                "error": "Station not found",
+                "message": f"Station {station_id} introuvable",
+            },
+            status=404,
+        )
+
+    from .models import LidarUpload
+    from .services.lidar_pipeline import BASE_DIR
+
+    uploads = LidarUpload.objects.filter(station=station).order_by("uploaded_at")
+
+    uploads_data = []
+    for u in uploads:
+        disk_path = BASE_DIR / u.laz_file.name
+        try:
+            size_mb = (
+                round(disk_path.stat().st_size / (1024 * 1024), 2)
+                if disk_path.exists()
+                else None
+            )
+        except Exception:
+            size_mb = None
+
+        uploads_data.append(
+            {
+                "id": u.id,
+                "original_filename": u.original_filename or u.laz_file.name,
+                "uploaded_at": u.uploaded_at.isoformat() if u.uploaded_at else None,
+                "file_size_mb": size_mb,
+                "file_exists": disk_path.exists(),
+            }
+        )
+
+    return JsonResponse(
+        {
+            "station_id": station.id,
+            "station_nom": station.nom,
+            "uploads": uploads_data,
+        }
+    )
+
+
+@api_view(["DELETE"])
+def lidar_upload_delete(request, upload_id: int):
+    """
+    Supprime un fichier LAZ uploadé et invalide les fichiers générés pour la station.
+    Si d'autres LAZ restent, re-déclenche automatiquement le pipeline DTM.
+    Si c'était le dernier LAZ, supprime aussi LidarDTM et LidarSnow.
+
+    DELETE /api/lidar/uploads/<upload_id>/
+
+    Returns:
+        {
+            "upload_id": 12,
+            "station_id": 3,
+            "file_deleted": true,
+            "remaining_laz": 1,
+            "pipeline_restarted": true,
+            "message": "..."
+        }
+    """
+    try:
+        result = delete_laz_upload(upload_id)
+    except ValueError as e:
+        return JsonResponse(
+            {"error": "Not found", "message": str(e)},
+            status=404,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": "Delete failed", "message": str(e)},
+            status=500,
+        )
+
+    remaining = result["remaining_laz"]
+    restarted = result["pipeline_restarted"]
+
+    if remaining == 0:
+        message = (
+            "Fichier LAZ supprimé. Aucun LAZ restant — données LIDAR réinitialisées."
+        )
+    elif restarted:
+        message = (
+            f"Fichier LAZ supprimé. "
+            f"{remaining} fichier(s) restant(s) — pipeline DTM redémarré."
+        )
+    else:
+        message = "Fichier LAZ supprimé."
+
+    return JsonResponse(
+        {
+            **result,
+            "message": message,
         }
     )
 

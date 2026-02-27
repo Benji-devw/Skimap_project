@@ -1,7 +1,4 @@
-import { useRef, useState } from "react";
-
-// ID de la station qui possède un fichier LAZ → carte de neige disponible
-const LIDAR_STATION_ID = 3; // Ancelle
+import { useCallback, useRef, useState } from "react";
 import "./App.css";
 import type { Station, Piste, SnowMeasure } from "./types";
 import MapView, { type MapViewHandle } from "./components/MapView";
@@ -20,14 +17,40 @@ export default function App() {
   const [isSatellite, setIsSatellite] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [showSnowLayer, setShowSnowLayer] = useState(false);
-  const hasSnowLayer = selectedStation?.id === LIDAR_STATION_ID;
+  const [hasSnowLayer, setHasSnowLayer] = useState(false);
 
-  const handleSetSelectedStation = (station: Station | null) => {
-    // Si on change de station et que la nouvelle n'a pas de LAZ, on cache la couche neige
-    if (station?.id !== LIDAR_STATION_ID) {
+  // Fetch le statut neige pour une station et met à jour hasSnowLayer
+  const refreshSnowLayerStatus = useCallback(async (stationId: number) => {
+    try {
+      const r = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/lidar/status/?station_id=${stationId}`,
+      );
+      const data = await r.json();
+      const ready = data.snow_layer_ready === true;
+      setHasSnowLayer(ready);
+      if (!ready) setShowSnowLayer(false);
+    } catch {
+      setHasSnowLayer(false);
       setShowSnowLayer(false);
     }
+  }, []);
+
+  const handleSetSelectedStation = (station: Station | null) => {
+    if (!station) {
+      setShowSnowLayer(false);
+      setHasSnowLayer(false);
+      setSelectedStation(null);
+      return;
+    }
+    // Si on change de station, reset d'abord puis re-fetch
+    if (station.id !== selectedStation?.id) {
+      setShowSnowLayer(false);
+      setHasSnowLayer(false);
+    }
     setSelectedStation(station);
+    // Re-fetch dans tous les cas (même station, même id) pour
+    // remettre hasSnowLayer à jour si on a recliqué sur le même marker
+    refreshSnowLayerStatus(station.id);
   };
   const [drawCoordinates, setDrawCoordinates] = useState<[number, number][]>(
     [],
@@ -56,6 +79,7 @@ export default function App() {
         setSnowMeasures={setSnowMeasures}
         selectedStation={selectedStation}
         setSelectedStation={handleSetSelectedStation}
+        selectedStationId={selectedStation?.id ?? null}
         is3D={is3D}
         isSatellite={isSatellite}
         targetPisteId={targetPisteId}
@@ -94,6 +118,14 @@ export default function App() {
           selectedStation={selectedStation}
           setTargetPisteId={setTargetPisteId}
           onPisteDeleted={handlePisteCreated}
+          onSnowLayerReady={() => {
+            setHasSnowLayer(true);
+            setShowSnowLayer(true);
+          }}
+          onSnowLayerRemoved={() => {
+            setShowSnowLayer(false);
+            setHasSnowLayer(false);
+          }}
         />
         <PisteDrawer
           selectedStation={selectedStation}

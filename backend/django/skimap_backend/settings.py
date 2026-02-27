@@ -137,3 +137,51 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# ─── Logging ──────────────────────────────────────────────────────────────────
+# Affiche les logs des pipelines LIDAR dans la console Docker (stdout)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "pipeline": {
+            "format": "[{asctime}] {levelname:<8} {name} — {message}",
+            "style": "{",
+            "datefmt": "%H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "pipeline",
+        },
+    },
+    "loggers": {
+        # Pipeline LIDAR (stations/services/lidar_pipeline.py)
+        "stations.services.lidar_pipeline": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        # Open-Meteo service
+        "stations.services.open_meteo": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        # Toute l'app stations en WARNING minimum
+        "stations": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        # Django requests (keep default)
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}

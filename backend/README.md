@@ -301,6 +301,17 @@ python create_dtm.py \
 ### 3. Prédire l'accumulation de neige
 
 ```bash
+# Avec données réelles Open-Meteo (recommandé)
+python predict_snow_coverage.py \
+  --dtm media/lidar/dtm_coste_belle.tif \
+  --slope media/lidar/dtm_coste_belle_slope.tif \
+  --aspect media/lidar/dtm_coste_belle_aspect.tif \
+  --output media/lidar/snow_prediction.tif \
+  --lat 44.602 --lon 6.220 \
+  --base-elevation 1600 \
+  --save-classified
+
+# Ou avec une valeur manuelle (sans connexion)
 python predict_snow_coverage.py \
   --dtm media/lidar/dtm_coste_belle.tif \
   --slope media/lidar/dtm_coste_belle_slope.tif \
@@ -312,7 +323,8 @@ python predict_snow_coverage.py \
 ```
 
 **Options :**
-- `--base-snow` : Hauteur de neige de base en cm (mesure station)
+- `--lat` / `--lon` : Coordonnées WGS84 de la station → récupère la hauteur de neige réelle depuis Open-Meteo
+- `--base-snow` : Hauteur de neige manuelle en cm (fallback si pas de connexion)
 - `--base-elevation` : Altitude de référence en mètres
 - `--save-classified` : Sauvegarder la version classifiée (0-5)
 

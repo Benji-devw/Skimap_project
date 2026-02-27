@@ -23,9 +23,15 @@ from stations.views import (
     PisteViewSet,
     SnowMeasureViewSet,
     StationViewSet,
+    lidar_cancel,
+    lidar_status,
+    lidar_upload,
+    lidar_upload_delete,
+    lidar_uploads_list,
     snow_at_point,
     snow_coverage_geojson,
     snow_realtime,
+    snow_refresh,
 )
 
 
@@ -45,4 +51,14 @@ urlpatterns = [
     path("api/snow-coverage/", snow_coverage_geojson, name="snow-coverage"),
     path("api/snow-at-point/", snow_at_point, name="snow-at-point"),
     path("api/snow-realtime/", snow_realtime, name="snow-realtime"),
+    path("api/lidar/upload/", lidar_upload, name="lidar-upload"),
+    path("api/lidar/uploads/", lidar_uploads_list, name="lidar-uploads-list"),
+    path(
+        "api/lidar/uploads/<int:upload_id>/",
+        lidar_upload_delete,
+        name="lidar-upload-delete",
+    ),
+    path("api/lidar/status/", lidar_status, name="lidar-status"),
+    path("api/lidar/cancel/", lidar_cancel, name="lidar-cancel"),
+    path("api/snow/refresh/", snow_refresh, name="snow-refresh"),
 ]

@@ -25,6 +25,7 @@ type Props = {
   showSnowLayer: boolean;
   coordinates: [number, number][];
   setCoordinates: (coords: [number, number][]) => void;
+  selectedStationId?: number | null;
 };
 
 export type MapViewHandle = {
@@ -49,6 +50,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
       showSnowLayer,
       coordinates,
       setCoordinates,
+      selectedStationId,
     },
     ref,
   ) => {
@@ -174,7 +176,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
 
             // Réafficher la couche de neige si elle était active
             if (savedState.wasShowingSnow) {
-              renderSnowLayer(map);
+              renderSnowLayer(map, selectedStationId ?? undefined);
             }
 
             // Restaurer l'opacité
@@ -191,7 +193,7 @@ const MapView = forwardRef<MapViewHandle, Props>(
           }
 
           if (savedState.wasShowingSnow) {
-            renderSnowLayer(map);
+            renderSnowLayer(map, selectedStationId ?? undefined);
           }
 
           setTimeout(() => {
@@ -220,11 +222,11 @@ const MapView = forwardRef<MapViewHandle, Props>(
       }
 
       if (showSnowLayer) {
-        renderSnowLayer(map);
+        renderSnowLayer(map, selectedStationId ?? undefined);
       } else {
         removeSnowLayer(map);
       }
-    }, [showSnowLayer]);
+    }, [showSnowLayer, selectedStationId]);
 
     // Add markers for stations
     useEffect(() => {

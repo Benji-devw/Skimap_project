@@ -13,12 +13,16 @@ let mouseLeaveHandler: (() => void) | null = null;
  *
  * @param map - Instance de la carte Mapbox
  */
-export async function renderSnowLayer(map: mapboxgl.Map): Promise<void> {
+export async function renderSnowLayer(
+  map: mapboxgl.Map,
+  stationId?: number,
+): Promise<void> {
   try {
     // Charger les données de neige depuis l'API
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/snow-coverage/`,
-    );
+    const url = stationId
+      ? `${import.meta.env.VITE_API_URL}/api/snow-coverage/?station_id=${stationId}`
+      : `${import.meta.env.VITE_API_URL}/api/snow-coverage/`;
+    const response = await fetch(url);
 
     if (!response.ok) {
       console.error("Failed to load snow coverage data");
