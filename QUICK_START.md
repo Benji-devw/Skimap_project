@@ -9,7 +9,7 @@
 
 ### 2. Clone et Configuration
 
-\`\`\`bash
+```bash
 # Cloner le projet
 git clone <votre-repo>
 cd Skimap_project
@@ -17,29 +17,26 @@ cd Skimap_project
 # Créer le fichier .env frontend
 echo "VITE_MAPBOX_TOKEN=pk.votre_token_mapbox" > frontend/.env
 echo "VITE_API_URL=http://localhost:8000" >> frontend/.env
-\`\`\`
+```
 
 ### 3. Démarrer le Backend
 
-\`\`\`bash
+```bash
 # Lancer PostgreSQL + Django
 docker compose up -d --build
-
-# Attendre 30s que la DB s'initialise
-sleep 30
 
 # Vérifier
 curl http://localhost:8000/health/
 # → {"status": "ok"}
-\`\`\`
+```
 
 ### 4. Démarrer le Frontend
 
-\`\`\`bash
+```bash
 cd frontend
-npm install
-npm run dev
-\`\`\`
+pnpm install
+pnpm run dev
+```
 
 **✅ Ouvrir** : http://localhost:5173
 
@@ -70,7 +67,7 @@ npm run dev
 
 ## 📡 API Rapide
 
-\`\`\`bash
+```bash
 # Toutes les stations
 curl http://localhost:8000/api/stations/ | jq
 
@@ -82,15 +79,16 @@ curl http://localhost:8000/api/snow-coverage/ | jq
 
 # Neige à un point
 curl "http://localhost:8000/api/snow-at-point/?lat=44.602&lng=6.220" | jq
-\`\`\`
+```
 
 ---
 
 ## 🔬 Traitement LIDAR (Optionnel)
 
 Si vous avez un fichier LIDAR (.laz) :
+[Télécharger des données LIDAR HD (IGN)](https://cartes.gouv.fr/telechargement/IGNF_NUAGES-DE-POINTS-LIDAR-HD)
 
-\`\`\`bash
+```bash
 # Entrer dans le conteneur
 docker exec -it skimap-django bash
 
@@ -121,31 +119,31 @@ python convert_raster_to_geojson.py \\
 
 # Redémarrer pour recharger
 docker compose restart web
-\`\`\`
+```
 
 ---
 
 ## 🐛 Problèmes Courants
 
 ### Port déjà utilisé
-\`\`\`bash
+```bash
 # Arrêter les services
 docker compose down
 # Vérifier les ports
 lsof -i :8000  # Backend
 lsof -i :5173  # Frontend
-\`\`\`
+```
 
 ### Base de données vide
-\`\`\`bash
+```bash
 docker compose down -v && docker compose up -d
-\`\`\`
+```
 
 ### Couche neige invisible
-\`\`\`bash
+```bash
 # Vérifier le fichier existe
 docker exec skimap-django ls -lh media/lidar/snow_contours.geojson
-\`\`\`
+```
 
 ---
 

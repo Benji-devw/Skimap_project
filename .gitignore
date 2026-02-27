@@ -3,6 +3,7 @@
 **/__pycache__/
 **/*.pyc
 **/db.sqlite3
+**/backend/django/media/lidar/
 
 # Node / frontend
 **/node_modules/
