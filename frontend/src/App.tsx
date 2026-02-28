@@ -26,12 +26,9 @@ export default function App() {
         `${import.meta.env.VITE_API_URL}/api/lidar/status/?station_id=${stationId}`,
       );
       const data = await r.json();
-      const ready = data.snow_layer_ready === true;
-      setHasSnowLayer(ready);
-      if (!ready) setShowSnowLayer(false);
+      setHasSnowLayer(data.snow_layer_ready === true);
     } catch {
       setHasSnowLayer(false);
-      setShowSnowLayer(false);
     }
   }, []);
 
@@ -120,7 +117,6 @@ export default function App() {
           onPisteDeleted={handlePisteCreated}
           onSnowLayerReady={() => {
             setHasSnowLayer(true);
-            setShowSnowLayer(true);
           }}
           onSnowLayerRemoved={() => {
             setShowSnowLayer(false);

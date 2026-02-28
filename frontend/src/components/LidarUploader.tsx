@@ -184,11 +184,6 @@ export default function LidarUploader({
         if (data.status === "pending" || data.status === "running") {
           startPolling();
         }
-        // Si la couche est déjà prête au montage, on notifie
-        if (data.snow_layer_ready) {
-          notifiedReadyRef.current = true;
-          onSnowLayerReady();
-        }
       }
       setUploads(list);
     };

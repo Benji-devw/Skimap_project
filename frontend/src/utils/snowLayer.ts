@@ -96,11 +96,11 @@ export async function renderSnowLayer(
 
       // Créer le contenu du popup
       const popupContent = `
-        <div style="font-family: sans-serif; padding: 4px;">
+        <div class="snow-dtm-popup">
           <strong style="color: ${properties?.color || "#000"};">
             ${properties?.name || "Neige"}
           </strong><br/>
-          <span style="font-size: 13px;">
+          <span>
             ${properties?.snow_range || "N/A"}<br/>
             ${properties?.description || ""}
           </span>
@@ -265,5 +265,7 @@ export function debugSnowPopups(): void {
 
 // Exposer la fonction de debug globalement (pour la console)
 if (typeof window !== "undefined") {
-  (window as any).debugSnowPopups = debugSnowPopups;
+  (
+    window as Window & { debugSnowPopups?: typeof debugSnowPopups }
+  ).debugSnowPopups = debugSnowPopups;
 }

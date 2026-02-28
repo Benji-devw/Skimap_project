@@ -1,4 +1,4 @@
-/* Variables de thème (simple) */
+/* Variables de thème */
 :root {
     --map-accent: #ff3b3b;
     --map-light: #ffffff;
@@ -260,4 +260,29 @@ body {
 .piste-drawer .drawing-controls {
     display: flex;
     flex-direction: column;
+}
+
+/* ── Popup neige (survol DTM hover) ─────────────────────────────────────────── */
+
+/* Flèche du popup en dark */
+/*.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+    border-top-color: rgba(15, 23, 42, 0.88) !important;
+}
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+    border-bottom-color: rgba(15, 23, 42, 0.88) !important;
+}
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    border-right-color: rgba(15, 23, 42, 0.88) !important;
+}
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    border-left-color: rgba(15, 23, 42, 0.88) !important;
+}*/
+
+/* Content du popup */
+.snow-dtm-popup {
+    font-size: 14px;
+    color: var(--fg);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0rem;
 }
