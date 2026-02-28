@@ -1,4 +1,4 @@
-# Fontend Steps
+# Frontend Steps
 
 ## Étape 1 – Create vite app
 
@@ -26,10 +26,10 @@ VITE_API_URL=http://localhost:8000
 - [x] Composant `MapView` avec carte de base, marqueurs de stations et popup
 - [x] Récupération des stations et des pistes via l'API
 - [x] Rendu des pistes via `GeoJSON` (`renderPistesLayer`)
-- [x] Basculer style carte: rues ↔ satellite, avec ré‑application 3D et pistes
+p- [x] Basculer style carte: rues ↔ satellite, avec ré‑application 3D et pistes
 - [x] Mode 3D (terrain DEM + animation) via `enable3D` / `disable3D`
 - [x] Zoom sur station (marker click) et sur piste (sélection sidebar)
-- [x] Mode 
+- [ ] Mode theme dark/light
 - [ ] Adoucir le rendu des pistes: `line-join: "round"`, `line-cap: "round"`, `line-blur`
 - [ ] Activer `antialias` et régler `fadeDuration` lors de l'init de la map
 - [ ] En mode 3D, ajuster le zoom sur piste: `flyTo` avec `offset/padding` et `queryTerrainElevation` pour éviter la caméra sous le relief

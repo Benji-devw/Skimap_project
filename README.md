@@ -9,8 +9,6 @@ Application Full Stack de visualisation interactive de pistes de ski avec :
 - **Frontend React + TypeScript**
 - **Architecture Docker** complète
 
----
-
 ## ✨ Fonctionnalités
 
 ### 🗺️ Carte Interactive
@@ -38,7 +36,17 @@ Application Full Stack de visualisation interactive de pistes de ski avec :
 - ✅ Mesures de neige (température, précipitations, hauteur)
 - ✅ Traitement LIDAR (30M+ points) pour analyse terrain
 
----
+
+## 📚 Concept
+Qu'est-ce que LIDAR ?
+- LIDAR (Light Detection and Ranging) est une technologie de télédétection qui utilise des lasers pour mesurer des distances. Elle est couramment utilisée pour créer des modèles 3D précis de la surface de la Terre, des bâtiments, des forêts, etc. Les données LIDAR sont généralement stockées dans des formats spécifiques, comme **LAS** ou **LAZ**, qui sont des standards pour les nuages de points.
+
+### 📚 Formats courants pour les données LIDAR
+- **LAS** : Format binaire standard pour les nuages de points LIDAR.
+- **LAZ** : Version compressée de LAS.
+- **ASCII** : Format texte, moins efficace mais lisible par l'humain.
+- **GeoTIFF** : Utilisé pour les modèles de terrain dérivés des données LIDAR.
+
 
 ## 🏗️ Architecture
 
@@ -146,8 +154,8 @@ docker compose ps
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 **Application disponible :** http://localhost:5173
@@ -158,7 +166,7 @@ npm run dev
 
 ### Endpoints Principaux
 
-| Méthode | URL | Description |
+| Méthode | URL | Description |F
 |---------|-----|-------------|
 | `GET` | `/api/stations/` | Liste toutes les stations |
 | `POST` | `/api/stations/` | Créer une station |
@@ -425,6 +433,7 @@ docker exec skimap-django python convert_raster_to_geojson.py \
 ## 🔮 Améliorations Futures
 
 ### Court terme
+- [ ] Ajout d'un timer pour le upload du fichier LAZ
 - [ ] Slider d'opacité pour la couche neige
 - [ ] Légende des couleurs dans l'UI
 - [ ] Sélecteur de date pour données historiques

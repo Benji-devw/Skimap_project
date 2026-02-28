@@ -1,7 +1,5 @@
 # 🚀 SkiMap - Guide de Démarrage Rapide
 
-## ⚡ Lancement en 5 minutes
-
 ### 1. Prérequis
 - ✅ Docker Desktop installé et démarré
 - ✅ Node.js 18+ installé
@@ -11,7 +9,7 @@
 
 ```bash
 # Cloner le projet
-git clone <votre-repo>
+git clone https://github.com/Benji-devw/Skimap_project.git
 cd Skimap_project
 
 # Créer le fichier .env frontend
@@ -153,16 +151,6 @@ docker compose down -v && docker compose up -d
 # Vérifier le fichier existe
 docker exec skimap-django ls -lh media/lidar/snow_contours.geojson
 ```
-
----
-
-## 📚 Documentation Complète
-
-- **README.md** : Documentation projet complète
-- **LIDAR_SNOW_INTEGRATION.md** : Intégration LIDAR détaillée
-- **backend/README.md** : Documentation API
-- **TESTING_GUIDE.md** : Guide de test
-- **CHANGELOG.md** : Historique des versions
 
 ---
 
