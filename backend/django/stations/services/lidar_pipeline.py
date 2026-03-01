@@ -590,6 +590,19 @@ def _run_dtm_pipeline_locked(
 
         logger.info(f"[DTM Pipeline] ✅ DTM généré → {dtm_out.name}")
 
+        # ── Supprimer le LAZ source 
+        laz_disk = BASE_DIR / upload.laz_file.name
+        if laz_disk.exists():
+            try:
+                laz_disk.unlink()
+                logger.info(
+                    f"[DTM Pipeline] 🗑  LAZ supprimé (DTM prêt) : {laz_disk.name}"
+                )
+            except Exception as exc:
+                logger.warning(
+                    f"[DTM Pipeline] Impossible de supprimer le LAZ {laz_disk.name} : {exc}"
+                )
+
     # ── Bilan ─────────────────────────────────────────────────────────────────
     total_ready = sum(1 for u in all_uploads if upload_dtm_ready(station_id, u.id))
     dtm_record.laz_count = total_ready
