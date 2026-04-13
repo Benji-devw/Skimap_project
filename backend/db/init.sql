@@ -37,35 +37,14 @@ CREATE TABLE IF NOT EXISTS snow_measures (
 CREATE INDEX IF NOT EXISTS idx_snow_measures_station ON snow_measures(station_id);
 CREATE INDEX IF NOT EXISTS idx_snow_measures_date ON snow_measures(date_time);
 
--- Seed: (coordonnées WGS84 = LON, LAT)
--- Station : Alpe d'Huez
+-- Stations
 INSERT INTO stations (id, nom, geom) VALUES
-(1, 'Alpe d''Huez',
-  ST_SetSRID(ST_GeomFromGeoJSON('{
-    "type":"Point",
-    "coordinates":[6.068348,45.092624]
-  }'), 4326));
+(1, 'Alpe d''Huez', ST_SetSRID(ST_MakePoint(6.068348, 45.092624), 4326)),
+(2, 'Les Deux Alpes', ST_SetSRID(ST_MakePoint(6.125625180539144, 45.01028601911859), 4326)),
+(3, 'Ancelle', ST_SetSRID(ST_MakePoint(6.201809, 44.620601), 4326));
 
- -- Station : Les Deux Alpes
-INSERT INTO stations (id, nom, geom) VALUES
-(2, 'Les Deux Alpes',
-  ST_SetSRID(ST_GeomFromGeoJSON('{
-    "type":"Point",
-    "coordinates":[6.125625180539144,45.01028601911859]
-  }'), 4326));
-
--- Station : Ancelle
-INSERT INTO stations (id, nom, geom) VALUES
-(3, 'Ancelle',
-  ST_SetSRID(ST_GeomFromGeoJSON('{
-    "type":"Point",
-    "coordinates":[6.201809, 44.620601]
-  }'), 4326));
-
--- Pistes principales
+-- Pistes pour Alpe d'Huez
 INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
-
--- Sarenne (noire, la plus longue du monde)
 (1, 1, 'Sarenne',
   ST_SetSRID(ST_GeomFromGeoJSON('{
     "type":"LineString",
@@ -78,7 +57,6 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
   }'), 4326),
   'black', 'open', 16000),
 
--- Alpette (rouge)
 (2, 1, 'Alpette',
   ST_SetSRID(ST_GeomFromGeoJSON('{
     "type":"LineString",
@@ -89,28 +67,65 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
   }'), 4326),
   'red', 'close', 1200),
 
--- Vallon du Diable (rouge)
+(5, 1, 'Test Piste',
+  ST_SetSRID(ST_GeomFromGeoJSON('{
+    "type":"LineString",
+    "coordinates":[
+      [6.068,45.092],
+      [6.069,45.093]
+    ]
+  }'), 4326),
+  'verte', 'ouverte', 1000);
+
+-- Pistes pour Les Deux Alpes
+INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
 (3, 2, 'Vallon du Diable',
   ST_SetSRID(ST_GeomFromGeoJSON('{
     "type":"LineString",
     "coordinates":[
-      [6.148139039034766, 44.997573878012524],
-      [6.144061874947561, 45.009154959403894]
+      [6.148139039034766,44.997573878012524],
+      [6.144061874947561,45.009154959403894]
     ]
   }'), 4326),
-  'red', 'close', 800),
+  'red', 'close', 800);
 
--- Coste Belle (rouge)
-(4, 3, 'Coste Belle',
+-- Pistes pour Ancelle
+INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
+(6, 3, 'Costa Bellee',
   ST_SetSRID(ST_GeomFromGeoJSON('{
     "type":"LineString",
     "coordinates":[
-        [6.20853, 44.61915],
-        [6.20512, 44.62245],
-        [6.20235, 44.62482]
+      [6.230223934858543,44.604336118502715],
+      [6.223751485848823,44.60342096188188],
+      [6.219078913685308,44.60476589331387]
     ]
   }'), 4326),
-  'red', 'open', 1500);
+  'rouge', 'ouverte', 921),
+
+(7, 3, 'Serreglier',
+  ST_SetSRID(ST_GeomFromGeoJSON('{
+    "type":"LineString",
+    "coordinates":[
+      [6.205819000285942,44.603328360136004],
+      [6.209234451076981,44.60443561237233],
+      [6.214602486380215,44.60611382104446],
+      [6.215771750575982,44.60684614715436]
+    ]
+  }'), 4326),
+  'bleue', 'ouverte', 885),
+
+(8, 3, 'Boissière',
+  ST_SetSRID(ST_GeomFromGeoJSON('{
+    "type":"LineString",
+    "coordinates":[
+      [6.206430828747756,44.605288707576335],
+      [6.20875533891919,44.60664359983821],
+      [6.211598874932292,44.60831547894122],
+      [6.213582202414131,44.60930458183108],
+      [6.216869487051639,44.61106517887086]
+    ]
+  }'), 4326),
+  'rouge', 'ouverte', 1047);
 
 -- Snow measures
 INSERT INTO snow_measures (
