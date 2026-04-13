@@ -2,7 +2,6 @@
 FROM condaforge/mambaforge:latest
 
 # Installation des outils système et SIG via Mamba
-# On installe tout d'un coup : Django, GDAL, PDAL, et les libs Python
 RUN mamba install -y -c conda-forge \
     python=3.11 \
     django \
@@ -16,6 +15,8 @@ RUN mamba install -y -c conda-forge \
     rasterio \
     numpy \
     scipy \
+    shapely \
+    pyproj \
     && mamba clean -afy
 
 # Créer le dossier app

@@ -348,6 +348,11 @@ curl "http://localhost:8000/api/snow-at-point/?lat=44.602&lng=6.220" | jq
 
 ### Backend (Python)
 
+```bash
+# Check dependencies
+docker compose exec web pip list
+```
+
 ```txt
 django==5.2.6
 djangorestframework
