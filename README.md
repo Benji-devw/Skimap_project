@@ -1,5 +1,7 @@
 # ❄️ SkiMap – Visualisation des pistes de ski avec couche neige LIDAR
 
+![SkiMap](./frontend/public/skimap_screenshot.png)
+
 ## 📋 Vue d'ensemble
 
 Application Full Stack de visualisation interactive de pistes de ski avec :
