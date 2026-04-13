@@ -91,7 +91,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
 
 -- Pistes pour Ancelle
 INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
-(6, 3, 'Costa Bellee',
+(6, 3, 'Coste Belle',
   ST_SetSRID(ST_GeomFromGeoJSON('{
     "type":"LineString",
     "coordinates":[
@@ -100,7 +100,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
       [6.219078913685308,44.60476589331387]
     ]
   }'), 4326),
-  'rouge', 'ouverte', 921),
+  'rouge', 'close', 921),
 
 (7, 3, 'Serreglier',
   ST_SetSRID(ST_GeomFromGeoJSON('{
@@ -112,7 +112,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
       [6.215771750575982,44.60684614715436]
     ]
   }'), 4326),
-  'bleue', 'ouverte', 885),
+  'bleue', 'close', 885),
 
 (8, 3, 'Boissière',
   ST_SetSRID(ST_GeomFromGeoJSON('{
@@ -125,7 +125,7 @@ INSERT INTO pistes (id, station_id, nom, geom, type, etat, longueur) VALUES
       [6.216869487051639,44.61106517887086]
     ]
   }'), 4326),
-  'rouge', 'ouverte', 1047);
+  'rouge', 'close', 1047);
 
 -- Snow measures
 INSERT INTO snow_measures (

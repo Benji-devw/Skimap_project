@@ -566,6 +566,11 @@ export default function LidarUploader({
       `}</style>
 
       <span style={labelStyle}>📡 Données LIDAR</span>
+      <span style={labelStyle}>
+        <a href="https://cartes.gouv.fr/telechargement/IGNF_NUAGES-DE-POINTS-LIDAR-HD" target="_blank" rel="noopener noreferrer">
+          Ou trouver un fichier LAZ ?
+        </a>
+      </span>
 
       {/* Zone de dépôt */}
       <div
