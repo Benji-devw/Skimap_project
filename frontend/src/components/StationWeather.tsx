@@ -159,7 +159,7 @@ export default function StationWeather({ station }: Props) {
           ☁️ Météo en temps réel
         </span>
         <span style={{ fontSize: 11, opacity: 0.45 }}>
-          Open-Meteo · {fetchedAt} UTC
+          Open-Meteo · {fetchedAt} UTC · {new Date().toLocaleString()}
         </span>
       </div>
 
